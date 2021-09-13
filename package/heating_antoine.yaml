@@ -1,5 +1,7 @@
-# SEMAINE
+
+
 input_datetime:
+# SEMAINE
   heating_antoine_start_1:
     name: "Confort : Début"
     has_date: false
