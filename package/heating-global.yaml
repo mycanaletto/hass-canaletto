@@ -1,0 +1,11 @@
+binary_sensor:
+  - platform: template
+    sensors:
+      workday_saturday_working:
+        friendly_name: "Samedi travaillé"
+        value_template: >
+          {% if now().isoweekday() in (5,) and states.binary_sensor.workday_sensor.state == 'on' %}
+            true
+          {%else%}
+            false
+          {% endif %}
