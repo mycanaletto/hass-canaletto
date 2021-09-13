@@ -1,0 +1,283 @@
+type: vertical-stack
+cards:
+  - type: entities
+    entities:
+      - entity: climate.thermostat_antoine
+    title: PLANIFICATION
+    theme: teal
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_1
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_1
+        - entity: input_datetime.heating_antoine_end_1
+        - entity: input_number.heating_antoine_temperature_confort_1
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_1
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_1
+            state_color: true
+      title: SEMAINE > NUIT
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_2
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_2
+        - entity: input_datetime.heating_antoine_end_2
+        - entity: input_number.heating_antoine_temperature_confort_2
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_2
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_2
+            state_color: true
+      title: SEMAINE > MATIN
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_3
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_3
+        - entity: input_datetime.heating_antoine_end_3
+        - entity: input_number.heating_antoine_temperature_confort_3
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_3
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_3
+            state_color: true
+      title: SEMAINE > MIDI
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_4
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_4
+        - entity: input_datetime.heating_antoine_end_4
+        - entity: input_number.heating_antoine_temperature_confort_4
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_4
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_4
+            state_color: true
+      title: SEMAINE > SOIR
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_1_s
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_1_s
+        - entity: input_datetime.heating_antoine_end_1_s
+        - entity: input_number.heating_antoine_temperature_confort_1_s
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_1_s
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_1_s
+            state_color: true
+      title: SAMEDI > NUIT
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_2_s
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_2_s
+        - entity: input_datetime.heating_antoine_end_2_s
+        - entity: input_number.heating_antoine_temperature_confort_2_s
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_2_s
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_2_s
+            state_color: true
+      title: SAMEDI > MATIN
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_3_s
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_3_s
+        - entity: input_datetime.heating_antoine_end_3_s
+        - entity: input_number.heating_antoine_temperature_confort_3_s
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_3_s
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_3_s
+            state_color: true
+      title: SAMEDI > MIDI
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_4_s
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_4_s
+        - entity: input_datetime.heating_antoine_end_4_s
+        - entity: input_number.heating_antoine_temperature_confort_4_s
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_4_s
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_4_s
+            state_color: true
+      title: SAMEDI > SOIR
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_1_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_1_d
+        - entity: input_datetime.heating_antoine_end_1_d
+        - entity: input_number.heating_antoine_temperature_confort_1_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_1_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_1_d
+            state_color: true
+      title: DIMANCHE > NUIT
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_2_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_2_d
+        - entity: input_datetime.heating_antoine_end_2_d
+        - entity: input_number.heating_antoine_temperature_confort_2_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_2_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_2_d
+            state_color: true
+      title: DIMANCHE > MATIN
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_3_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_3_d
+        - entity: input_datetime.heating_antoine_end_3_d
+        - entity: input_number.heating_antoine_temperature_confort_3_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_3_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_3_d
+            state_color: true
+      title: DIMANCHE > MIDI
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_antoine_enabled_4_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_antoine_start_4_d
+        - entity: input_datetime.heating_antoine_end_4_d
+        - entity: input_number.heating_antoine_temperature_confort_4_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_antoine_4_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_antoine_4_d
+            state_color: true
+      title: DIMANCHE > SOIR
+      theme: teal
+      state_color: false
