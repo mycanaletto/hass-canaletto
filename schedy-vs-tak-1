@@ -1,0 +1,157 @@
+type: vertical-stack
+cards:
+  - type: thermostat
+    entity: climate.thermostat_antoine
+    theme: teal
+  - type: entities
+    entities:
+      - entity: climate.thermostat_antoine
+        type: custom:climate-mode-entity-row
+        name: Thermostat
+        modes:
+          - hvac_mode: 'off'
+          - hvac_mode: heat
+          - preset_mode: none
+            icon: mdi:recycle
+          - preset_mode: away
+            icon: mdi:exit-to-app
+      - entity: binary_sensor.antoine_window_delayed
+        name: Fenêtre
+      - entity: binary_sensor.workday_sensor
+        name: Jour de travail
+      - entity: binary_sensor.workday_saturday_working
+        name: Jour de travail (samedi)
+      - entities:
+          - entity: sensor.mi_antoine_temp
+            name: false
+          - entity: sensor.mi_antoine_hum
+            name: false
+        entity: sensor.mi_antoine_temp
+        name: Température / Humidité
+        secondary_info: last-changed
+        show_state: false
+        type: custom:multiple-entity-row
+      - entities:
+          - entity: input_number.heating_antoine_temperature_eco
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+          - entity: input_number.heating_antoine_temperature_away
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+          - entity: schedy_room.schedy_heating_chambre_antoine
+            name: Retour Schedy
+            unit: °C
+          - entity: input_boolean.homeoffice
+          - entity: input_boolean.to_sleep
+          - entity: input_boolean.to_away
+        head:
+          label: OPTIONS >
+          type: section
+        padding: 30
+        type: custom:fold-entity-row
+      - entities:
+          - entity: script.heating_antoine_boost
+          - entity: script.heating_antoine_boost_reset
+          - entity: input_number.heating_antoine_temperature_boost
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+          - entity: input_number.heating_antoine_time_boost
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+        head:
+          label: BOOST >
+          type: section
+        padding: 30
+        type: custom:fold-entity-row
+    title: CHAMBRE ANTOINE
+    show_header_toggle: false
+    theme: teal
+    state_color: true
+  - type: entities
+    entities:
+      - entities:
+          - entity: input_datetime.next_antoine_start
+            type: custom:multiple-entity-row
+            format: datetime
+            name: Arrivée
+          - entity: input_datetime.next_antoine_stop
+            type: custom:multiple-entity-row
+            format: datetime
+            name: Départ
+        head:
+          entity: input_boolean.presence_antoine
+          name: Présence
+          show_state: true
+          toggle: false
+        padding: 30
+        type: custom:fold-entity-row
+      - label: PLAGES
+        type: section
+      - entities:
+          - entity: input_boolean.heating_antoine_enabled_1
+            name: NUIT
+            toggle: true
+          - entity: input_boolean.heating_antoine_enabled_2
+            name: MATIN
+            toggle: true
+          - entity: input_boolean.heating_antoine_enabled_3
+            name: MIDI
+            toggle: true
+          - entity: input_boolean.heating_antoine_enabled_4
+            name: SOIR
+            toggle: true
+        entity: climate.thermostat_antoine
+        name: Semaine
+        show_state: false
+        toggle: false
+        icon: mdi:calendar-range
+        type: custom:multiple-entity-row
+        state_color: true
+      - entities:
+          - entity: input_boolean.heating_antoine_enabled_1_s
+            name: NUIT
+            toggle: true
+          - entity: input_boolean.heating_antoine_enabled_2_s
+            name: MATIN
+            toggle: true
+          - entity: input_boolean.heating_antoine_enabled_3_s
+            name: MIDI
+            toggle: true
+          - entity: input_boolean.heating_antoine_enabled_4_s
+            name: SOIR
+            toggle: true
+        entity: climate.thermostat_antoine
+        name: Samedi
+        show_state: false
+        toggle: false
+        icon: mdi:calendar-range
+        type: custom:multiple-entity-row
+        state_color: true
+      - entities:
+          - entity: input_boolean.heating_antoine_enabled_1_d
+            name: NUIT
+            toggle: true
+          - entity: input_boolean.heating_antoine_enabled_2_d
+            name: MATIN
+            toggle: true
+          - entity: input_boolean.heating_antoine_enabled_3_d
+            name: MIDI
+            toggle: true
+          - entity: input_boolean.heating_antoine_enabled_4_d
+            name: SOIR
+            toggle: true
+        entity: climate.thermostat_antoine
+        name: Dimanche
+        show_state: false
+        toggle: false
+        icon: mdi:calendar-range
+        type: custom:multiple-entity-row
+        state_color: true
+    title: PLANIFICATION
+    show_header_toggle: false
+    theme: teal
+    state_color: true
