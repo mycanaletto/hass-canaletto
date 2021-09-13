@@ -1,0 +1,193 @@
+schedy_heating:
+  module: hass_apps_loader
+  class: SchedyApp
+
+  actor_type: thermostat
+  actor_templates:
+    ac:
+      # send_retry_interval: 15
+      send_retries: 20
+      supports_hvac_modes: false
+      off_temp: 17
+    convecteur:
+      send_retry_interval: 30
+      send_retries: 10
+      supports_hvac_modes: true
+
+
+
+  watched_entities:
+  - input_boolean.homeoffice
+  - binary_sensor.workday_sensor
+  - binary_sensor.workday_saturday_working
+  - input_boolean.heating_enabled
+  # - input_boolean.thermostats_ac_on_off
+  # - input_number.off_temperature
+  
+
+  # expression_environment: |
+  #   def homeoffice():
+  #     return is_on("input_boolean.homeoffice")
+  #   def workday():
+  #     return state("binary_sensor.workday_sensor")
+  #   def saturday():
+  #     return is_on("binary_sensor.workday_saturday_working")
+    
+  #   def time_between(start, end):
+  #       start = int(state(start))
+  #       end = int(state(end))
+  #       current = time.hour * 60 + time.minute  + 0
+  #       if start >= end:
+  #           return current >= start or current < end
+  #       return current >= start and current < end
+
+  schedule_prepend:
+  - x: "14 if is_off('input_boolean.heating_enabled') else Next()" # Le HorsGel... Possible aussi de créer un input_number...
+  # schedule_append:
+  # - v: "state('input_number.off_temperature') else Next()"
+  
+  rooms:
+    hall_ac:
+      allow_manual_changes: true  # On autorise le changement manuel de consigne ou le passage en off
+      rescheduling_delay: 1      # Délais après lequel Schedy repassera sur les valeurs prédéfinies
+      actors:
+        climate.daikin:
+        # climate.thermostat_x:
+          template: ac
+      watched_entities:
+      # COMMON
+      - input_boolean.homeoffice
+      - binary_sensor.workday_sensor
+      - binary_sensor.workday_saturday_working
+      - input_number.off_temperature
+      - input_boolean.thermostats_ac_on_off
+      - binary_sensor.life_windows_and_doors_delayed # Windows Life
+      - input_boolean.to_sleep
+      - binary_sensor.to_away_delayed
+      # ROOM SPECIFIC
+      - input_number.hall_ac_heating_period_1_temperature
+      - input_boolean.hall_ac_heating_period_1
+      - binary_sensor.hall_ac_slot_1
+      - input_number.hall_ac_heating_period_2_temperature
+      - input_boolean.hall_ac_heating_period_2
+      - binary_sensor.hall_ac_slot_2
+      - input_number.hall_ac_heating_period_3_temperature
+      - input_boolean.hall_ac_heating_period_3
+      - binary_sensor.hall_ac_slot_3
+      - input_number.hall_ac_heating_period_4_temperature
+      - input_boolean.hall_ac_heating_period_4
+      - binary_sensor.hall_ac_slot_4
+      
+      schedule:
+      - rules:
+        # CONTRAINTES
+        - x: "Break() if is_on('input_boolean.to_sleep') else Next()"
+        - x: "Break() if is_off('input_boolean.thermostats_ac_on_off') else Next()"
+        - x: "Break() if is_on('binary_sensor.to_away_delayed') else Next()"
+        - x: "Break() if is_on('binary_sensor.life_windows_and_doors_delayed') else Next()"
+        
+        
+
+        # ACTIONS
+        # WORKDAY
+        - rules:
+          # - x: state("input_number.off_temperature") if (state("input_boolean.to_sleep") == "on") else Next() # Dormir...
+          - x: "Next() if is_on('binary_sensor.workday_sensor') else Break()"
+          - x: >
+              state("input_number.hall_ac_heating_period_1_temperature")
+              if (is_on("input_boolean.hall_ac_heating_period_1") and (is_on("binary_sensor.hall_ac_slot_1")))
+              else Next()
+          - x: >
+              state("input_number.hall_ac_heating_period_2_temperature")
+              if (is_on("input_boolean.hall_ac_heating_period_2") and (is_on("binary_sensor.hall_ac_slot_2")))
+              else Next()
+          - x: >
+              state("input_number.hall_ac_heating_period_3_temperature")
+              if (is_on("input_boolean.hall_ac_heating_period_3") and (is_on("binary_sensor.hall_ac_slot_3")))
+              else Next()
+          - x: "Break(2)"
+        # WEEK-END
+        - rules:
+          - x: "Next() if is_off('binary_sensor.workday_sensor') else Break()"        
+          - x: >
+              state("input_number.hall_ac_heating_period_4_temperature")
+              if (is_on("input_boolean.hall_ac_heating_period_4") and (is_on("binary_sensor.hall_ac_slot_4")))
+              else Next()
+          - x: "Break(2)"
+
+      # - v: 13 # On remplace par un input_number >>> Attention : v = valeur, x = expression
+      # OFF (à ajuster selon le mode été/hiver e mode clim/chaiffage n'étant pas géré par Schedy à cause du HVAC false)
+      - x: state("input_number.off_temperature") # Consigne entre les plages ECO...
+
+### C H A M B R E S ###
+
+
+    chambre_antoine:
+      allow_manual_changes: true
+      replicate_changes: true # en cas de plusieurs th
+      rescheduling_delay: 1
+      actors:
+        climate.thermostat_antoine:
+          template: convecteur
+      watched_entities:
+      - input_number.heating_antoine_temperature_confort_1
+      - input_number.heating_antoine_temperature_confort_2
+      - input_number.heating_antoine_temperature_confort_3
+      - input_number.heating_antoine_temperature_confort_4
+      - input_number.heating_antoine_temperature_confort_1_s
+      - input_number.heating_antoine_temperature_confort_2_s
+      - input_number.heating_antoine_temperature_confort_3_s
+      - input_number.heating_antoine_temperature_confort_4_s
+      - input_number.heating_antoine_temperature_confort_1_d
+      - input_number.heating_antoine_temperature_confort_2_d
+      - input_number.heating_antoine_temperature_confort_3_d
+      - input_number.heating_antoine_temperature_confort_4_d
+
+      - input_number.heating_antoine_temperature_eco
+      - input_number.heating_antoine_temperature_away
+      - input_number.off_temperature_convecteur
+
+      - input_boolean.thermostats_on_off
+      - input_boolean.presence_antoine
+
+      - binary_sensor.antoine_window_delayed
+
+      - binary_sensor.heating_antoine_1
+      - binary_sensor.heating_antoine_2
+      - binary_sensor.heating_antoine_3
+      - binary_sensor.heating_antoine_4
+      - binary_sensor.heating_antoine_1_s
+      - binary_sensor.heating_antoine_2_s
+      - binary_sensor.heating_antoine_3_s
+      - binary_sensor.heating_antoine_4_s
+      - binary_sensor.heating_antoine_1_d
+      - binary_sensor.heating_antoine_2_d
+      - binary_sensor.heating_antoine_3_d
+      - binary_sensor.heating_antoine_4_d
+
+      schedule:
+      - rules:
+        - rules:
+          - x: "Break() if is_off('input_boolean.thermostats_on_off') else Next()"    # Etat général du chauffage
+          - x: "Break() if is_off('input_boolean.presence_antoine') else Next()"      # Présence
+          - x: "Break() if is_on('binary_sensor.antoine_window_delayed') else Next()" # Fenêtre ouverte
+          # CONFORT SEMAINE
+          - x: state("input_number.heating_antoine_temperature_confort_1") if (is_on("binary_sensor.heating_antoine_1")) else Next()
+          - x: state("input_number.heating_antoine_temperature_confort_2") if (is_on("binary_sensor.heating_antoine_2")) else Next()
+          - x: state("input_number.heating_antoine_temperature_confort_3") if (is_on("binary_sensor.heating_antoine_3")) else Next()
+          - x: state("input_number.heating_antoine_temperature_confort_4") if (is_on("binary_sensor.heating_antoine_4")) else Next()
+          # CONFORT SAMEDI
+          - x: state("input_number.heating_antoine_temperature_confort_1_s") if (is_on("binary_sensor.heating_antoine_1_s")) else Next()
+          - x: state("input_number.heating_antoine_temperature_confort_2_s") if (is_on("binary_sensor.heating_antoine_2_s")) else Next()
+          - x: state("input_number.heating_antoine_temperature_confort_3_s") if (is_on("binary_sensor.heating_antoine_3_s")) else Next()
+          - x: state("input_number.heating_antoine_temperature_confort_4_s") if (is_on("binary_sensor.heating_antoine_4_s")) else Next()
+          # CONFORT DIMANCHE & FERIE
+          - x: state("input_number.heating_antoine_temperature_confort_1_d") if (is_on("binary_sensor.heating_antoine_1_d")) else Next()
+          - x: state("input_number.heating_antoine_temperature_confort_2_d") if (is_on("binary_sensor.heating_antoine_2_d")) else Next()
+          - x: state("input_number.heating_antoine_temperature_confort_3_d") if (is_on("binary_sensor.heating_antoine_3_d")) else Next()
+          - x: state("input_number.heating_antoine_temperature_confort_4_d") if (is_on("binary_sensor.heating_antoine_4_d")) else Next()
+          # ECO
+          - x: state("input_number.heating_antoine_temperature_eco") if (is_on("input_boolean.presence_antoine")) else Next()
+          - x: "Break(2)"
+
+      - x: state("input_number.heating_antoine_temperature_away") # Consigne away
