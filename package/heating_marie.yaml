@@ -1,0 +1,520 @@
+# SEMAINE
+input_datetime:
+  heating_marie_start_1:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_1:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+  heating_marie_start_2:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_2:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+  heating_marie_start_3:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_3:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+  heating_marie_start_4:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_4:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+
+# SAMEDI
+  heating_marie_start_1_s:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_1_s:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+  heating_marie_start_2_s:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_2_s:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+  heating_marie_start_3_s:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_3_s:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+  heating_marie_start_4_s:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_4_s:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+
+# SEMAINE
+  heating_marie_start_1_d:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_1_d:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+  heating_marie_start_2_d:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_2_d:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+  heating_marie_start_3_d:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_3_d:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true
+  heating_marie_start_4_d:
+    name: "Confort : Début"
+    has_date: false
+    has_time: true
+  heating_marie_end_4_d:
+    name: "Confort : Fin"
+    has_date: false
+    has_time: true    
+
+# PRESENCE
+  next_marie_start:
+    name: Arrivé Marie
+    has_date: true
+    has_time: true
+    icon: mdi:calendar-clock
+  next_marie_stop:
+    name: Départ Marie
+    has_date: true
+    has_time: true
+    icon: mdi:calendar-clock
+
+
+binary_sensor:
+  - platform: template
+    sensors:
+      heating_marie_1: # SEMAINE
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_1') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_1') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true 
+            and states('binary_sensor.workday_sensor') == 'on'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_1') == 'on' }}
+      heating_marie_2:
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_2') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_2') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+            and states('binary_sensor.workday_sensor') == 'on'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_2') == 'on' }}
+      heating_marie_3:
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_3') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_3') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+            and states('binary_sensor.workday_sensor') == 'on'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_3') == 'on' }}
+      heating_marie_4:
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_4') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_4') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+            and states('binary_sensor.workday_sensor') == 'on'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_4') == 'on' }}
+
+      heating_marie_1_s: # SAMEDI
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_1_s') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_1_s') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+            and states('binary_sensor.workday_sensor') == 'on'
+            and states('binary_sensor.workday_saturday_working') == 'on'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_1_s') == 'on' }}
+      heating_marie_2_s:
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_2_s') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_2_s') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+            and states('binary_sensor.workday_sensor') == 'on'
+            and states('binary_sensor.workday_saturday_working') == 'on'
+            and states('input_boolean.presence_marie') == 'on'
+            and states('input_boolean.heating_marie_enabled_2_s') == 'on' }}
+      heating_marie_3_s:
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_3_s') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_3_s') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+            and states('binary_sensor.workday_sensor') == 'on'
+            and states('binary_sensor.workday_saturday_working') == 'on'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_3_s') == 'on' }}
+      heating_marie_4_s:
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_4_s') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_4_s') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+            and states('binary_sensor.workday_sensor') == 'on'
+            and states('binary_sensor.workday_saturday_working') == 'on'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_4_s') == 'on' }}
+
+      heating_marie_1_d: # DIMANCHE
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_1_d') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_1_d') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+            and states('binary_sensor.workday_sensor') ==  'off' 
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_1_d') == 'on' }}
+      heating_marie_2_d:
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_2_d') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_2_d') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true 
+            and states('binary_sensor.workday_sensor') ==  'off'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_2_d') == 'on' }}
+      heating_marie_3_d:
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_3_d') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_3_d') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true 
+            and states('binary_sensor.workday_sensor') ==  'off'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_3_d') == 'on' }}
+      heating_marie_4_d:
+        entity_id: sensor.time
+        friendly_name: Mode Confort
+        value_template: >
+          {% set t = states('sensor.time') %}
+          {% set start = states('input_datetime.heating_marie_start_4_d') [0:5] %}
+          {% set stop = states('input_datetime.heating_marie_end_4_d') [0:5] %}
+          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+            and states('binary_sensor.workday_sensor') ==  'off'
+            and states('input_boolean.presence_marie') == 'on' 
+            and states('input_boolean.heating_marie_enabled_4_d') == 'on' }}
+
+
+
+
+  - platform: template
+    sensors:
+      marie_window_delayed:
+        friendly_name: "Fenêtre (delayed)"
+        device_class: window
+        #window_room: bedroom
+        delay_on: 
+          seconds: 300
+        delay_off:
+          seconds: 300
+        value_template: >-
+          {{ is_state('binary_sensor.fenetre_marie', 'on') }}
+        icon_template: >-
+          {% if is_state('binary_sensor.fenetre_marie', 'on') %}
+            mdi:window-open
+          {% else %}
+            mdi:window-closed
+          {% endif %}  
+
+      marie_home:
+        friendly_name: Présence Marie (Géoloc)
+        icon_template: >-
+          {% if is_state('binary_sensor.marie_home','on') %} mdi:home-account
+          {% else %} mdi:home-outline
+          {% endif %}
+        value_template: "{{ is_state('person.marie','home') }}"
+        # value_template: "{{ is_state('person.marie','home') or  is_state('person.katie','home') }}"
+
+script:
+  heating_marie_boost:
+    alias: Boost
+    icon: mdi:timer-outline
+    sequence:
+    - event: schedy_set_value
+      event_data:
+        app_name: schedy_heating
+        room: chambre_marie
+        v: '{{ states.input_number.heating_marie_temperature_boost.state }}'
+        rescheduling_delay: '{{ states.input_number.heating_marie_time_boost.state }}'
+
+  heating_marie_boost_reset:
+    alias: "Boost : Reset"
+    icon: mdi:timer-off-outline
+    sequence:
+    - event: schedy_set_value
+      event_data:
+        app_name: schedy_heating
+        room: chambre_marie
+        v:  20
+        rescheduling_delay: 1
+
+
+
+input_number:
+  heating_marie_temperature_boost: # BOOST
+    name: 'Boost : Température'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_time_boost:
+    name: 'Boost : Durée'
+    initial: 60
+    min: 5
+    max: 360
+    step: 5
+    unit_of_measurement: Min.
+    icon: 'mdi:clock'
+
+
+
+
+
+
+  heating_marie_temperature_confort_1: # SEMAINE
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_confort_2:
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_confort_3:
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_confort_4:
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+
+  heating_marie_temperature_confort_1_s: # SAMEDI
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_confort_2_s:
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_confort_3_s:
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_confort_4_s:
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+
+  heating_marie_temperature_confort_1_d: # DIMANCHE
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_confort_2_d:
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_confort_3_d:
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_confort_4_d:
+    name: 'Température : Confort'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+
+
+
+  heating_marie_temperature_eco:
+    name: 'Température : Eco'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+  heating_marie_temperature_away:
+    name: 'Température : Absence'
+    min: 12
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+    icon: 'mdi:thermometer-lines'
+
+
+input_boolean:
+  heating_marie_enabled_1: #SEMAINE
+    name: Plage Active
+    icon: mdi:toggle-switch
+  heating_marie_enabled_2:
+    name: Plage Active
+    icon: mdi:toggle-switch
+  heating_marie_enabled_3:
+    name: Plage Active
+    icon: mdi:toggle-switch
+  heating_marie_enabled_4:
+    name: Plage Active
+    icon: mdi:toggle-switch
+
+  heating_marie_enabled_1_s: # SAMEDI
+    name: Plage Active
+    icon: mdi:toggle-switch
+  heating_marie_enabled_2_s:
+    name: Plage Active
+    icon: mdi:toggle-switch
+  heating_marie_enabled_3_s:
+    name: Plage Active
+    icon: mdi:toggle-switch
+  heating_marie_enabled_4_s:
+    name: Plage Active
+    icon: mdi:toggle-switch
+
+  heating_marie_enabled_1_d: # DIMANCHE
+    name: Plage Active
+    icon: mdi:toggle-switch
+  heating_marie_enabled_2_d:
+    name: Plage Active
+    icon: mdi:toggle-switch
+  heating_marie_enabled_3_d:
+    name: Plage Active
+    icon: mdi:toggle-switch
+  heating_marie_enabled_4_d:
+    name: Plage Active
+    icon: mdi:toggle-switch
+
+  presence_marie:
+    name: Présence Marie
+    icon: mdi:account-check
+
+automation:
+- alias: 'Schedy : Marie (Arrivée)'
+  trigger:
+  - platform: state
+    entity_id: input_boolean.presence_marie
+    to: 'on'
+  - platform: template # Date de début de présence
+    value_template: "{{ states('sensor.date_time') == (states.input_datetime.next_marie_start.attributes.timestamp | int | timestamp_custom('%Y-%m-%d, %H:%M', True)) }}"
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.presence_marie
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > Arrivée Marie | Température chambre Marie : {{ states('sensor.mi_marie_temp') }}°"
+
+- alias: 'Schedy : Marie (départ)'
+  trigger:
+  - platform: state
+    entity_id: input_boolean.presence_marie
+    to: 'off'
+  - platform: template # Date de fin de présence
+    value_template: "{{ states('sensor.date_time') == (states.input_datetime.next_marie_stop.attributes.timestamp | int | timestamp_custom('%Y-%m-%d, %H:%M', True)) }}"
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.presence_marie
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > Départ Marie | Température chambre Marie : {{ states('sensor.mi_marie_temp') }}°"
+   
