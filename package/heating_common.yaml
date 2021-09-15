@@ -1,0 +1,47 @@
+binary_sensor:
+  - platform: template
+    sensors:
+      heating_enabled:
+        # device_class: motion
+        value_template: "{{ is_state('input_boolean.thermostats_on_off', 'on') }}"
+      # door:
+      #   device_class: opening
+      #   value_template: "{{ is_state('switch.door', 'on') }}"
+
+
+  - platform: template
+    sensors:
+      life_windows_and_doors_delayed:
+        friendly_name: "Ouvertures Vie (delayed)"
+        device_class: window
+        delay_on: 
+          seconds: 300
+        delay_off:
+          seconds: 300
+        value_template: >-
+          {{ is_state('binary_sensor.state_openings_life', 'on') }}
+        icon_template: >-
+          {% if is_state('binary_sensor.state_openings_life', 'on') %}
+            mdi:window-open
+          {% else %}
+            mdi:window-closed
+          {% endif %} 
+
+  - platform: template
+    sensors:
+      to_away_delayed:
+        friendly_name: "To Away (delayed)"
+        device_class: motion
+        #window_room: bedroom
+        delay_on: 
+          seconds: 300
+        delay_off:
+          seconds: 300
+        value_template: >-
+          {{ is_state('input_boolean.to_away', 'on') }}
+        icon_template: >-
+          {% if is_state('input_boolean.to_away', 'on') %}
+            mdi:lock-open
+          {% else %}
+            mdi:lock
+          {% endif %} 
