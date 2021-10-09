@@ -1,0 +1,315 @@
+type: vertical-stack
+cards:
+  - type: thermostat
+    entity: climate.thermostat_lionel
+    theme: teal
+  - type: entities
+    entities:
+      - entity: climate.thermostat_lionel
+        type: custom:climate-mode-entity-row
+        name: Thermostat
+        modes:
+          - hvac_mode: 'off'
+          - hvac_mode: heat
+          - preset_mode: none
+            icon: mdi:recycle
+          - preset_mode: away
+            icon: mdi:exit-to-app
+      - entity: binary_sensor.fenetre_lionel
+        name: Fenêtre
+      - entities:
+          - entity: sensor.mi_lionel_temp
+            name: false
+          - entity: sensor.mi_lionel_hum
+            name: false
+        entity: sensor.mi_lionel_temp
+        name: Température / Humidité
+        secondary_info: last-changed
+        show_state: false
+        type: custom:multiple-entity-row
+      - entities:
+          - entity: input_number.heating_lionel_temperature_eco
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+          - entity: input_number.heating_lionel_temperature_away
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+          - entity: schedy_room.schedy_heating_chambre_lionel
+            name: Retour Schedy
+            unit: °C
+          - entity: binary_sensor.lionel_window_delayed
+        head:
+          label: OPTIONS >
+          type: section
+        padding: 30
+        type: custom:fold-entity-row
+      - entities:
+          - entity: script.heating_lionel_boost
+          - entity: script.heating_lionel_boost_reset
+          - entity: input_number.heating_lionel_temperature_boost
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+          - entity: input_number.heating_lionel_time_boost
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+        head:
+          label: BOOST >
+          type: section
+        padding: 30
+        type: custom:fold-entity-row
+    title: CHAMBRE LIONEL
+    show_header_toggle: false
+    theme: teal
+    state_color: true
+  - type: entities
+    entities:
+      - entities:
+          - entity: input_datetime.next_lionel_start
+            type: custom:multiple-entity-row
+            format: datetime
+            name: Arrivée
+          - entity: input_datetime.next_lionel_stop
+            type: custom:multiple-entity-row
+            format: datetime
+            name: Départ
+        head:
+          entity: input_boolean.presence_lionel
+          name: Présence
+          show_state: true
+          toggle: false
+        padding: 30
+        type: custom:fold-entity-row
+      - label: PLAGES
+        type: section
+      - entities:
+          - entity: input_boolean.heating_lionel_enabled_1
+            name: Nuit
+            toggle: true
+          - entity: input_boolean.heating_lionel_enabled_2
+            name: Matin
+            toggle: true
+          - entity: input_boolean.heating_lionel_enabled_3
+            name: MIDI
+            toggle: true
+          - entity: input_boolean.heating_lionel_enabled_4
+            name: SOIR
+            toggle: true
+        entity: climate.thermostat_lionel
+        name: Semaine
+        show_state: false
+        toggle: false
+        icon: mdi:calendar-range
+        type: custom:multiple-entity-row
+        state_color: true
+      - entities:
+          - entity: input_boolean.heating_lionel_enabled_1_d
+            name: Nuit
+            toggle: true
+          - entity: input_boolean.heating_lionel_enabled_2_d
+            name: Matin
+            toggle: true
+          - entity: input_boolean.heating_lionel_enabled_3_d
+            name: MIDI
+            toggle: true
+          - entity: input_boolean.heating_lionel_enabled_4_d
+            name: SOIR
+            toggle: true
+        entity: climate.thermostat_lionel
+        name: Week-end & Fériés
+        show_state: false
+        toggle: false
+        icon: mdi:calendar-range
+        type: custom:multiple-entity-row
+        state_color: true
+    title: PLANIFICATION
+    show_header_toggle: false
+    theme: teal
+    state_color: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_lionel_enabled_1
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_lionel_start_1
+        - entity: input_datetime.heating_lionel_end_1
+        - entity: input_number.heating_lionel_temperature_confort_1
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_lionel_1
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_lionel_1
+            state_color: true
+      title: Lionel / Semaine / Nuit
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_lionel_enabled_2
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_lionel_start_2
+        - entity: input_datetime.heating_lionel_end_2
+        - entity: input_number.heating_lionel_temperature_confort_2
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_lionel_2
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_lionel_2
+            state_color: true
+      title: Lionel / Semaine / Matin
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_lionel_enabled_3
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_lionel_start_3
+        - entity: input_datetime.heating_lionel_end_3
+        - entity: input_number.heating_lionel_temperature_confort_3
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_lionel_3
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_lionel_3
+            state_color: true
+      title: Lionel / Semaine / Midi
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_lionel_enabled_4
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_lionel_start_4
+        - entity: input_datetime.heating_lionel_end_4
+        - entity: input_number.heating_lionel_temperature_confort_4
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_lionel_4
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_lionel_4
+            state_color: true
+      title: Lionel / Semaine / Soir
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_lionel_enabled_1_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_lionel_start_1_d
+        - entity: input_datetime.heating_lionel_end_1_d
+        - entity: input_number.heating_lionel_temperature_confort_1_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_lionel_1_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_lionel_1_d
+            state_color: true
+      title: Lionel / Week-end / Nuit
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_lionel_enabled_2_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_lionel_start_2_d
+        - entity: input_datetime.heating_lionel_end_2_d
+        - entity: input_number.heating_lionel_temperature_confort_2_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_lionel_2_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_lionel_2_d
+            state_color: true
+      title: Lionel / Week-end / Matin
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_lionel_enabled_3_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_lionel_start_3_d
+        - entity: input_datetime.heating_lionel_end_3_d
+        - entity: input_number.heating_lionel_temperature_confort_3_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_lionel_3_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_lionel_3_d
+            state_color: true
+      title: Lionel / Week-end / Midi
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_lionel_enabled_4_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_lionel_start_4_d
+        - entity: input_datetime.heating_lionel_end_4_d
+        - entity: input_number.heating_lionel_temperature_confort_4_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_lionel_4_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_lionel_4_d
+            state_color: true
+      title: Lionel / Week-end / Soir
+      theme: teal
+      state_color: false
