@@ -1,0 +1,337 @@
+type: vertical-stack
+cards:
+  - type: thermostat
+    entity: climate.daikin
+    theme: teal
+  - type: entities
+    entities:
+      - entity: climate.daikin
+        type: custom:climate-mode-entity-row
+        modes:
+          - hvac_mode: 'off'
+          - hvac_mode: heat
+          - hvac_mode: heat_cool
+            icon: mdi:recycle
+          - hvac_mode: cool
+            icon: mdi:snowflake
+          - preset_mode: eco
+      - entity: binary_sensor.state_openings_life
+        name: Fenêtre
+      - entities:
+          - entity: sensor.average_chb_temp
+            name: false
+            format: precision2
+          - entity: sensor.average_chb_hum
+            format: precision2
+            name: false
+        entity: sensor.average_chb_temp
+        name: Température / Humidité
+        secondary_info: last-changed
+        show_state: false
+        type: custom:multiple-entity-row
+      - entities:
+          - entity: input_number.heating_ac_temperature_eco
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+          - entity: input_number.heating_ac_temperature_away
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+            unit: °C
+          - type: section
+          - entity: input_boolean.thermostats_ac_on_off
+          - type: section
+          - entity: input_boolean.heating_enabled
+          - entity: schedy_room.schedy_heating_ac_heat
+            name: Retour Schedy chauffage
+          - entity: input_boolean.cooling_enabled
+          - entity: schedy_room.schedy_heating_ac_cool
+            name: Retour Schedy refroidissement
+          - type: section
+          - entity: binary_sensor.life_windows_and_doors_delayed
+          - label: Daikin AC
+            type: section
+          - entity: sensor.daikin_compressor_frequency
+            name: Fréquence du compresseur
+          - entity: sensor.daikin_cool_energy_consumption
+            name: Consommation Froid
+          - entity: sensor.daikin_heat_energy_consumption
+            name: Consommation Chaud
+          - entity: sensor.daikin_total_power_consumption
+            name: Consommation Totale
+          - entity: switch.daikin_streamer
+            name: Streamer
+        head:
+          label: OPTIONS >
+          type: section
+        padding: 30
+        type: custom:fold-entity-row
+      - entities:
+          - entity: script.heating_ac_boost
+          - entity: script.heating_ac_boost_reset
+          - entity: input_number.heating_ac_temperature_boost
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+          - entity: input_number.heating_ac_time_boost
+            type: custom:numberbox-card
+            icon_plus: mdi:chevron-up
+            icon_minus: mdi:chevron-down
+        head:
+          label: BOOST >
+          type: section
+        padding: 30
+        type: custom:fold-entity-row
+    title: AC
+    show_header_toggle: false
+    theme: teal
+    state_color: true
+  - type: entities
+    entities:
+      - entities:
+          - entity: input_datetime.next_ac_start
+            type: custom:multiple-entity-row
+            format: datetime
+            name: Arrivée
+          - entity: input_datetime.next_ac_stop
+            type: custom:multiple-entity-row
+            format: datetime
+            name: Départ
+        head:
+          entity: input_boolean.presence_ac
+          name: Présence
+          show_state: true
+          toggle: false
+        padding: 30
+        type: custom:fold-entity-row
+      - label: PLAGES
+        type: section
+      - entities:
+          - entity: input_boolean.heating_ac_enabled_1
+            name: NUIT
+            toggle: true
+          - entity: input_boolean.heating_ac_enabled_2
+            name: MATIN
+            toggle: true
+          - entity: input_boolean.heating_ac_enabled_3
+            name: MIDI
+            toggle: true
+          - entity: input_boolean.heating_ac_enabled_4
+            name: SOIR
+            toggle: true
+        entity: climate.daikin
+        name: Semaine
+        show_state: false
+        toggle: false
+        icon: mdi:calendar-range
+        type: custom:multiple-entity-row
+        state_color: true
+      - entities:
+          - entity: input_boolean.heating_ac_enabled_1_d
+            name: NUIT
+            toggle: true
+          - entity: input_boolean.heating_ac_enabled_2_d
+            name: MATIN
+            toggle: true
+          - entity: input_boolean.heating_ac_enabled_3_d
+            name: MIDI
+            toggle: true
+          - entity: input_boolean.heating_ac_enabled_4_d
+            name: SOIR
+            toggle: true
+        entity: climate.daikin
+        name: Week-end
+        show_state: false
+        toggle: false
+        icon: mdi:calendar-range
+        type: custom:multiple-entity-row
+        state_color: true
+    title: PLANIFICATION
+    show_header_toggle: false
+    theme: teal
+    state_color: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_1
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_ac_start_1
+        - entity: input_datetime.heating_ac_end_1
+        - entity: input_number.heating_ac_temperature_confort_1
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_ac_1
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_ac_1
+            state_color: true
+      title: AC / Semaine / Nuit
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_2
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_ac_start_2
+        - entity: input_datetime.heating_ac_end_2
+        - entity: input_number.heating_ac_temperature_confort_2
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_ac_2
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_ac_2
+            state_color: true
+      title: AC / Semaine / Matin
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_3
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_ac_start_3
+        - entity: input_datetime.heating_ac_end_3
+        - entity: input_number.heating_ac_temperature_confort_3
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_ac_3
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_ac_3
+            state_color: true
+      title: AC / Semaine / Midi
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_4
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_ac_start_4
+        - entity: input_datetime.heating_ac_end_4
+        - entity: input_number.heating_ac_temperature_confort_4
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_ac_4
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_ac_4
+            state_color: true
+      title: AC / Semaine / Soir
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_1_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_ac_start_1_d
+        - entity: input_datetime.heating_ac_end_1_d
+        - entity: input_number.heating_ac_temperature_confort_1_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_ac_1_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_ac_1_d
+            state_color: true
+      title: AC / Week-end / Nuit
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_2_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_ac_start_2_d
+        - entity: input_datetime.heating_ac_end_2_d
+        - entity: input_number.heating_ac_temperature_confort_2_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_ac_2_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_ac_2_d
+            state_color: true
+      title: AC / Week-end / Matin
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_3_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_ac_start_3_d
+        - entity: input_datetime.heating_ac_end_3_d
+        - entity: input_number.heating_ac_temperature_confort_3_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_ac_3_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_ac_3_d
+            state_color: true
+      title: AC / Week-end / Midi
+      theme: teal
+      state_color: false
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_4_d
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entity: input_datetime.heating_ac_start_4_d
+        - entity: input_datetime.heating_ac_end_4_d
+        - entity: input_number.heating_ac_temperature_confort_4_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.heating_ac_4_d
+              state: 'on'
+          row:
+            entity: binary_sensor.heating_ac_4_d
+            state_color: true
+      title: AC / Week-end / Soir
+      theme: teal
+      state_color: false
