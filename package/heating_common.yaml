@@ -1,3 +1,6 @@
+
+
+
 binary_sensor:
   - platform: template
     sensors:
@@ -45,3 +48,102 @@ binary_sensor:
           {% else %}
             mdi:lock
           {% endif %} 
+
+
+
+
+
+
+
+# Mathieu
+  # - platform: template
+  #   sensors:
+  #     samedi_non_ferie:
+  #       friendly_name: 'Samedi non Ferié'
+  #       value_template: >
+  #         {{{ (now().strftime('%w')|int == 6) and (states('binary_sensor.workday_sensor') == 'on') }}
+
+
+  # - platform: template
+  #   sensors:
+  #     sh_on:
+  #       friendly_name: 'plage'
+  #       # value_template: >-
+
+  #       value_template: >
+  #         {% set n = now() %}
+  #         {% set n = (n.hour*60+n.minute)*60+n.second %}
+  #         {% set ts_from = state_attr('input_datetime.hall_ac_heating_period_4_start', 'timestamp') %}
+  #         {% set ts_to = state_attr(input_datetime.hall_ac_heating_period_4_start', 'timestamp') %}
+  #         {{ n > ts_from or n < ts_to }}
+
+  # - platform: tod
+  #   name: Slot
+  #   after: 
+  #     value_template: >
+  #       {{ states('input_datetime.hall_ac_heating_period_4_start') }}
+  #   before:
+  #     value_template: >
+  #       {{ states('input_datetime.hall_ac_heating_period_4_start') }}
+
+
+
+# OK
+#   - platform: template
+#     sensors:
+#       slot_1:
+#         entity_id: sensor.time
+#         friendly_name: Slot 1
+#         value_template: >
+#           {% set t = states('sensor.time') %}
+#           {% set start = states('input_datetime.hall_ac_heating_period_4_start') [0:5] %}
+#           {% set stop = states('input_datetime.hall_ac_heating_period_4_end') [0:5] %}
+#           {{ start <= t < stop if start < stop else (start <= t or t < stop) }}
+
+#   - platform: template
+#     sensors:
+#       workday_saturday:
+#         friendly_name: "Samedi travaillé"
+#         value_template: >
+#           {% if now().isoweekday() in (5,) and states.binary_sensor.workday_sensor.state == 'on' %}
+#             true
+#           {%else%}
+#             false
+#           {% endif %}
+
+
+      # bs_pifi01_slot2:
+      #   entity_id: sensor.time
+      #   friendly_name: Pi-Fi-01 Slot 2
+      #   value_template: >
+      #     {% set t = states('sensor.time') %}
+      #     {% set enabled = is_state('input_boolean.ib_switch_pifi01_timeslot2_enable', 'on') %}
+      #     {% set start = states('input_datetime.id_switch_pifi01_tmeslt2_on') [0:5] %}
+      #     {% set stop = states('input_datetime.id_switch_pifi01_tmeslt2_off') [0:5] %}
+      #     {{ start <= t < stop if start < stop else (start <= t or t < stop) }}
+      # bs_pifi01_on:
+      #   friendly_name: Pi-Fi-01 Requested On
+      #   value_template: >
+      #     {% set timer = is_state('input_boolean.ib_switch_pifi01_on', 'on') and is_state('input_boolean.ib_switch_pifi01_timer_enable', 'on') %}
+      #     {% set occupied =  is_state('binary_sensor.bs_occupied', 'on') %}
+      #     {% set slot1 = states('binary_sensor.bs_pifi01_slot1') %}
+      #     {% set slot2 = states('binary_sensor.bs_pifi01_slot2') %}
+      #     {{ occupied and (timer or slot1 or slot2) }}
+
+
+
+      #     {{ (as_timestamp(states('sensor.date_time')) - as_timestamp(states('sensor.water_heater_alarm_last_boot_time'))) > 30 }}
+
+
+      #     {{ (state_attr('input_datetime.hall_ac_heating_period_4_start')) - (state_attr('input_datetime.hall_ac_heating_period_4_end'))) > 30 }}
+
+
+
+      # value_template: "{{ (state_attr('input_datetime.hall_ac_heating_period_4_start', 'timestamp') / 60)|int }}"
+
+      # value_template: "{{ (state_attr('input_datetime.hall_ac_heating_period_4_end', 'timestamp') / 60)|int }}"
+
+
+
+
+   

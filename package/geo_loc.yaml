@@ -1,0 +1,221 @@
+binary_sensor:
+  - platform: template
+    sensors:
+       marie_geo:
+         friendly_name: Présence relative sur GéoLocalisation
+         device_class: presence
+         icon_template: >-
+           {% if is_state('binary_sensor.marie_geo','on') %} mdi:home-account
+           {% else %} mdi:home-outline
+           {% endif %}
+         value_template: >-
+           {{ is_state('input_boolean.presence_marie_geo', 'on') }}
+       antoine_geo:
+         friendly_name: Présence relative sur GéoLocalisation
+         device_class: presence
+         icon_template: >-
+           {% if is_state('binary_sensor.antoine_geo','on') %} mdi:home-account
+           {% else %} mdi:home-outline
+           {% endif %}
+         value_template: >-
+           {{ is_state('input_boolean.presence_antoine_geo', 'on') }}
+       lionel_geo:
+         friendly_name: Présence relative sur GéoLocalisation
+         device_class: presence
+         icon_template: >-
+           {% if is_state('binary_sensor.lionel_geo','on') %} mdi:home-account
+           {% else %} mdi:home-outline
+           {% endif %}
+         value_template: >-
+           {{ is_state('input_boolean.presence_lionel_geo', 'on') }}
+
+
+input_boolean:
+  presence_marie_geo:
+    name: "GéoLocalisation @ HOME"
+    icon: mdi:crosshairs-gps
+  presence_antoine_geo:
+    name: "GéoLocalisation @ HOME"
+    icon: mdi:crosshairs-gps
+  presence_lionel_geo:
+    name: "GéoLocalisation @ HOME"
+    icon: mdi:crosshairs-gps
+
+
+automation:
+
+- id: '5e1b6bdd-dee7-4a63-b8cb-3b9d01719b2b'
+  alias: GEO - Lionel en depart
+  mode: single
+  trigger:
+  - platform: numeric_state
+    entity_id:
+      - proximity.lionel
+    above: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.attributes.dir_of_travel  == "away_from" }}'
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.presence_lionel_geo
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{ states.sensor.date_time.state}} > Lionel s'éloigne de sa maison | Distance : {{ states.proximity.lionel.state }} Km."
+
+- id: 'a6bbcd6c-8c18-4ea5-8992-8dae0d63c24c'
+  alias: GEO - Lionel en approche
+  mode: single
+  trigger:
+  - platform: numeric_state
+    entity_id:
+      - proximity.lionel
+    below: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.attributes.dir_of_travel  == "towards" }}'
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.presence_lionel_geo
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{ states.sensor.date_time.state}} > Lionel s'approche de sa maison | Distance : {{ states.proximity.lionel.state }} Km."
+
+
+- id: 'ae015faf-344f-4c1d-bf33-77471a3f7b4c'
+  alias: GEO - Antoine en depart
+  mode: single
+  trigger:
+  - platform: numeric_state
+    entity_id:
+      - proximity.antoine
+    above: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.attributes.dir_of_travel  == "away_from" }}'
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.presence_antoine_geo
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{ states.sensor.date_time.state}} > Antoine s'éloigne de la maison | Distance : {{ states.proximity.antoine.state }} Km."
+
+- id: '2d4597c5-7c34-4692-9d6c-6b1b54b02a89'
+  alias: GEO - Antoine en approche
+  mode: single
+  trigger:
+  - platform: numeric_state
+    entity_id:
+      - proximity.antoine
+    below: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.attributes.dir_of_travel  == "towards" }}'
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.presence_antoine_geo
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{ states.sensor.date_time.state}} > Antoine s'approche de la maison | Distance : {{ states.proximity.antoine.state }} Km."
+
+
+- id: 'f802232d-9fc4-4e4f-9851-e890756615d5'
+  alias: GEO - Marie en départ
+  mode: single
+  trigger:
+  - platform: numeric_state
+    entity_id:
+      - proximity.marie
+    above: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.attributes.dir_of_travel  == "away_from" }}'
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.presence_marie_geo
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{ states.sensor.date_time.state}} > Marie s'éloigne de la maison | Distance : {{ states.proximity.marie_abbaye.state }} Km."           
+
+
+- id: '036dcd28-c66c-481e-9982-ff730daafc81'
+  alias: GEO - Marie en approche
+  mode: single
+  trigger:
+  - platform: numeric_state
+    entity_id:
+      - proximity.marie
+    below: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.attributes.dir_of_travel  == "towards" }}'
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.presence_marie_geo
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{ states.sensor.date_time.state}} > Marie s'approche de la maison | Distance : {{ states.proximity.marie_abbaye.state }} Km."   
+
+
+
+
+
+- id: '1d27558b-4da9-4524-a16d-9f1ed8c4bf1c'
+  alias: GEO - Marie en départ - Abbaye
+  mode: single
+  trigger:
+  - platform: numeric_state
+    entity_id:
+      - proximity.marie_abbaye
+    above: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.attributes.dir_of_travel  == "away_from" }}'
+  action:
+  # - service: input_boolean.turn_off
+  #   target:
+  #     entity_id: input_boolean.presence_marie_geo
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{ states.sensor.date_time.state}} > Marie s'éloigne de l'Abbaye | Distance : {{ states.proximity.marie_abbaye.state }} Km."           
+
+
+- id: '2d4597c5-7c34-4692-9d6c-6b1b54bgdfg02a89'
+  alias: GEO - Marie en approche - Abbaye
+  mode: single
+  trigger:
+  - platform: numeric_state
+    entity_id:
+      - proximity.marie_abbaye
+    below: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.attributes.dir_of_travel  == "towards" }}'
+  action:
+  # - service: input_boolean.turn_on
+  #   target:
+  #     entity_id: input_boolean.presence_marie_geo
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{ states.sensor.date_time.state}} > Marie s'approche de l'Abbaye | Distance : {{ states.proximity.marie_abbaye.state }} Km."           

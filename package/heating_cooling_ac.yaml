@@ -33,39 +33,39 @@ input_datetime:
     has_date: false
     has_time: true
 
-# SAMEDI
-  heating_ac_start_1_s:
-    name: "Confort : Début"
-    has_date: false
-    has_time: true
-  heating_ac_end_1_s:
-    name: "Confort : Fin"
-    has_date: false
-    has_time: true
-  heating_ac_start_2_s:
-    name: "Confort : Début"
-    has_date: false
-    has_time: true
-  heating_ac_end_2_s:
-    name: "Confort : Fin"
-    has_date: false
-    has_time: true
-  heating_ac_start_3_s:
-    name: "Confort : Début"
-    has_date: false
-    has_time: true
-  heating_ac_end_3_s:
-    name: "Confort : Fin"
-    has_date: false
-    has_time: true
-  heating_ac_start_4_s:
-    name: "Confort : Début"
-    has_date: false
-    has_time: true
-  heating_ac_end_4_s:
-    name: "Confort : Fin"
-    has_date: false
-    has_time: true
+# # SAMEDI
+#   heating_ac_start_1_s:
+#     name: "Confort : Début"
+#     has_date: false
+#     has_time: true
+#   heating_ac_end_1_s:
+#     name: "Confort : Fin"
+#     has_date: false
+#     has_time: true
+#   heating_ac_start_2_s:
+#     name: "Confort : Début"
+#     has_date: false
+#     has_time: true
+#   heating_ac_end_2_s:
+#     name: "Confort : Fin"
+#     has_date: false
+#     has_time: true
+#   heating_ac_start_3_s:
+#     name: "Confort : Début"
+#     has_date: false
+#     has_time: true
+#   heating_ac_end_3_s:
+#     name: "Confort : Fin"
+#     has_date: false
+#     has_time: true
+#   heating_ac_start_4_s:
+#     name: "Confort : Début"
+#     has_date: false
+#     has_time: true
+#   heating_ac_end_4_s:
+#     name: "Confort : Fin"
+#     has_date: false
+#     has_time: true
 
 # SEMAINE
   heating_ac_start_1_d:
@@ -162,54 +162,54 @@ binary_sensor:
             and states('input_boolean.presence_ac') == 'on' 
             and states('input_boolean.heating_ac_enabled_4') == 'on' }}
 
-      heating_ac_1_s: # SAMEDI
-        entity_id: sensor.time
-        friendly_name: Mode Confort
-        value_template: >
-          {% set t = states('sensor.time') %}
-          {% set start = states('input_datetime.heating_ac_start_1_s') [0:5] %}
-          {% set stop = states('input_datetime.heating_ac_end_1_s') [0:5] %}
-          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
-            and states('binary_sensor.workday_sensor') == 'on'
-            and states('binary_sensor.workday_saturday_working') == 'on'
-            and states('input_boolean.presence_ac') == 'on' 
-            and states('input_boolean.heating_ac_enabled_1_s') == 'on' }}
-      heating_ac_2_s:
-        entity_id: sensor.time
-        friendly_name: Mode Confort
-        value_template: >
-          {% set t = states('sensor.time') %}
-          {% set start = states('input_datetime.heating_ac_start_2_s') [0:5] %}
-          {% set stop = states('input_datetime.heating_ac_end_2_s') [0:5] %}
-          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
-            and states('binary_sensor.workday_sensor') == 'on'
-            and states('binary_sensor.workday_saturday_working') == 'on'
-            and states('input_boolean.presence_ac') == 'on'
-            and states('input_boolean.heating_ac_enabled_2_s') == 'on' }}
-      heating_ac_3_s:
-        entity_id: sensor.time
-        friendly_name: Mode Confort
-        value_template: >
-          {% set t = states('sensor.time') %}
-          {% set start = states('input_datetime.heating_ac_start_3_s') [0:5] %}
-          {% set stop = states('input_datetime.heating_ac_end_3_s') [0:5] %}
-          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
-            and states('binary_sensor.workday_sensor') == 'on'
-            and states('binary_sensor.workday_saturday_working') == 'on'
-            and states('input_boolean.presence_ac') == 'on' 
-            and states('input_boolean.heating_ac_enabled_3_s') == 'on' }}
-      heating_ac_4_s:
-        entity_id: sensor.time
-        friendly_name: Mode Confort
-        value_template: >
-          {% set t = states('sensor.time') %}
-          {% set start = states('input_datetime.heating_ac_start_4_s') [0:5] %}
-          {% set stop = states('input_datetime.heating_ac_end_4_s') [0:5] %}
-          {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
-            and states('binary_sensor.workday_sensor') == 'on'
-            and states('binary_sensor.workday_saturday_working') == 'on'
-            and states('input_boolean.presence_ac') == 'on' 
-            and states('input_boolean.heating_ac_enabled_4_s') == 'on' }}
+      # heating_ac_1_s: # SAMEDI
+      #   entity_id: sensor.time
+      #   friendly_name: Mode Confort
+      #   value_template: >
+      #     {% set t = states('sensor.time') %}
+      #     {% set start = states('input_datetime.heating_ac_start_1_s') [0:5] %}
+      #     {% set stop = states('input_datetime.heating_ac_end_1_s') [0:5] %}
+      #     {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+      #       and states('binary_sensor.workday_sensor') == 'on'
+      #       and states('binary_sensor.workday_saturday_working') == 'on'
+      #       and states('input_boolean.presence_ac') == 'on' 
+      #       and states('input_boolean.heating_ac_enabled_1_s') == 'on' }}
+      # heating_ac_2_s:
+      #   entity_id: sensor.time
+      #   friendly_name: Mode Confort
+      #   value_template: >
+      #     {% set t = states('sensor.time') %}
+      #     {% set start = states('input_datetime.heating_ac_start_2_s') [0:5] %}
+      #     {% set stop = states('input_datetime.heating_ac_end_2_s') [0:5] %}
+      #     {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+      #       and states('binary_sensor.workday_sensor') == 'on'
+      #       and states('binary_sensor.workday_saturday_working') == 'on'
+      #       and states('input_boolean.presence_ac') == 'on'
+      #       and states('input_boolean.heating_ac_enabled_2_s') == 'on' }}
+      # heating_ac_3_s:
+      #   entity_id: sensor.time
+      #   friendly_name: Mode Confort
+      #   value_template: >
+      #     {% set t = states('sensor.time') %}
+      #     {% set start = states('input_datetime.heating_ac_start_3_s') [0:5] %}
+      #     {% set stop = states('input_datetime.heating_ac_end_3_s') [0:5] %}
+      #     {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+      #       and states('binary_sensor.workday_sensor') == 'on'
+      #       and states('binary_sensor.workday_saturday_working') == 'on'
+      #       and states('input_boolean.presence_ac') == 'on' 
+      #       and states('input_boolean.heating_ac_enabled_3_s') == 'on' }}
+      # heating_ac_4_s:
+      #   entity_id: sensor.time
+      #   friendly_name: Mode Confort
+      #   value_template: >
+      #     {% set t = states('sensor.time') %}
+      #     {% set start = states('input_datetime.heating_ac_start_4_s') [0:5] %}
+      #     {% set stop = states('input_datetime.heating_ac_end_4_s') [0:5] %}
+      #     {{ (start <= t < stop if start < stop else (start <= t or t < stop)) == true
+      #       and states('binary_sensor.workday_sensor') == 'on'
+      #       and states('binary_sensor.workday_saturday_working') == 'on'
+      #       and states('input_boolean.presence_ac') == 'on' 
+      #       and states('input_boolean.heating_ac_enabled_4_s') == 'on' }}
 
       heating_ac_1_d: # DIMANCHE
         entity_id: sensor.time
@@ -352,34 +352,34 @@ input_number:
     unit_of_measurement: °C
     icon: 'mdi:thermometer-lines'
 
-  heating_ac_temperature_confort_1_s: # SAMEDI
-    name: 'Température : Confort'
-    min: 12
-    max: 30
-    step: 1
-    unit_of_measurement: °C
-    icon: 'mdi:thermometer-lines'
-  heating_ac_temperature_confort_2_s:
-    name: 'Température : Confort'
-    min: 12
-    max: 30
-    step: 1
-    unit_of_measurement: °C
-    icon: 'mdi:thermometer-lines'
-  heating_ac_temperature_confort_3_s:
-    name: 'Température : Confort'
-    min: 12
-    max: 30
-    step: 1
-    unit_of_measurement: °C
-    icon: 'mdi:thermometer-lines'
-  heating_ac_temperature_confort_4_s:
-    name: 'Température : Confort'
-    min: 12
-    max: 30
-    step: 1
-    unit_of_measurement: °C
-    icon: 'mdi:thermometer-lines'
+  # heating_ac_temperature_confort_1_s: # SAMEDI
+  #   name: 'Température : Confort'
+  #   min: 12
+  #   max: 30
+  #   step: 1
+  #   unit_of_measurement: °C
+  #   icon: 'mdi:thermometer-lines'
+  # heating_ac_temperature_confort_2_s:
+  #   name: 'Température : Confort'
+  #   min: 12
+  #   max: 30
+  #   step: 1
+  #   unit_of_measurement: °C
+  #   icon: 'mdi:thermometer-lines'
+  # heating_ac_temperature_confort_3_s:
+  #   name: 'Température : Confort'
+  #   min: 12
+  #   max: 30
+  #   step: 1
+  #   unit_of_measurement: °C
+  #   icon: 'mdi:thermometer-lines'
+  # heating_ac_temperature_confort_4_s:
+  #   name: 'Température : Confort'
+  #   min: 12
+  #   max: 30
+  #   step: 1
+  #   unit_of_measurement: °C
+  #   icon: 'mdi:thermometer-lines'
 
   heating_ac_temperature_confort_1_d: # DIMANCHE
     name: 'Température : Confort'
@@ -442,18 +442,18 @@ input_boolean:
     name: Plage Active
     icon: mdi:toggle-switch
 
-  heating_ac_enabled_1_s: # SAMEDI
-    name: Plage Active
-    icon: mdi:toggle-switch
-  heating_ac_enabled_2_s:
-    name: Plage Active
-    icon: mdi:toggle-switch
-  heating_ac_enabled_3_s:
-    name: Plage Active
-    icon: mdi:toggle-switch
-  heating_ac_enabled_4_s:
-    name: Plage Active
-    icon: mdi:toggle-switch
+  # heating_ac_enabled_1_s: # SAMEDI
+  #   name: Plage Active
+  #   icon: mdi:toggle-switch
+  # heating_ac_enabled_2_s:
+  #   name: Plage Active
+  #   icon: mdi:toggle-switch
+  # heating_ac_enabled_3_s:
+  #   name: Plage Active
+  #   icon: mdi:toggle-switch
+  # heating_ac_enabled_4_s:
+  #   name: Plage Active
+  #   icon: mdi:toggle-switch
 
   heating_ac_enabled_1_d: # DIMANCHE
     name: Plage Active
