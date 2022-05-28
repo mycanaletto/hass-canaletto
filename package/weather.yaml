@@ -1,0 +1,59 @@
+sensor: 
+  - platform: template
+    sensors:
+      sunelevation:
+        friendly_name: "Elevation du soleil"
+        value_template: "{{ state_attr('sun.sun', 'elevation') }}" # on indique que la valeur de cette entité sera égale à la valeur de l'attribut elevation de l'entité sun.sun
+      sunazimuth:
+        friendly_name: "Azimut du soleil"
+        value_template: "{{ state_attr('sun.sun', 'azimuth') }}" # on indique que la valeur de cette entité sera égale à la valeur de l'attribut azimuth de l'entité sun.sun
+
+binary_sensor:
+  - platform: template
+    sensors:
+      vr_sun_hot:
+        device_class: heat
+        delay_on: 
+          seconds: 300
+        delay_off:
+          seconds: 300
+        value_template: "{{states('sensor.saint_andiol_temperature')|float(0) >= states('input_number.vr_sun_hot') |float(0)
+                        and states('sensor.saint_andiol_cloud_cover')|float(0) <= states('input_number.vr_cloud_cover')|float(0) }}" 
+        friendly_name: "Alerte haute température"
+
+      vr_evening:
+        value_template:  "{{ (state_attr('sun.sun', 'azimuth') | float(0.0)) > 180 and (state_attr('sun.sun', 'elevation') | float(0.0)) < 0 and '12:00:00' < states('sensor.time') < '23:59:59' }}"
+        friendly_name: "Soirée"
+
+
+  - platform: threshold
+    name: "Soleil : Ouest"
+    upper: 170
+    lower: 80
+    entity_id: sensor.sunazimuth
+  - platform: threshold
+    name: "Soleil : Sud"
+    upper: 270
+    lower: 100
+    entity_id: sensor.sunazimuth
+  - platform: threshold
+    name: "Soleil : Est"
+    upper: 299
+    lower: 260
+    entity_id: sensor.sunazimuth
+
+input_number:
+  vr_sun_hot:
+    name: Seuil haute température
+    min: "10"
+    max: "40"
+    step: "1"
+    unit_of_measurement: "°"
+    icon: mdi:sun-thermometer-outline
+  vr_cloud_cover:
+    name: Seuil couverture nuageuse
+    min: "0"
+    max: "100"
+    step: "5"
+    unit_of_measurement: "%"
+    icon: mdi:cloud-lock-outline    

@@ -1,0 +1,231 @@
+binary_sensor:
+
+template:
+  - binary_sensor:
+      - name: VR - Séjour - Running
+        state: "{{ not is_state('input_select.vr_sejour_immediate', 'Manuel') }}"
+        device_class: running
+
+input_select:
+  vr_sejour_immediate:
+    name: Gestion de vr_sejour
+    icon: mdi:form-select
+    options:
+      - Automatique
+      - Manuel
+      - Entrouvert
+
+input_number:
+  vr_sejour_detection:
+    name: Délai (s) avant suspension
+    min: "5"
+    max: "600"
+    step: "5"
+    unit_of_measurement: "'"
+    icon: mdi:clock-edit-outline
+  # vr_sejour_duration:
+  #   name: Durée (min) de la suspension
+  #   min: "1"
+  #   max: "1440"
+  #   step: "1"
+  #   unit_of_measurement: "''"
+  #   icon: mdi:clock-edit-outline
+  vr_sejour_planned_position:
+    name: Position désirée
+    min: "-1"
+    max: "100"
+    step: "1"
+    unit_of_measurement: "%"
+        
+timer:
+  vr_sejour:
+    name: Durée de suspension restant
+input_text:
+  vr_sejour_suspend:
+    name: Fin de suspension du volet roulant
+    max: 255
+    icon: mdi:information-outline
+  vr_sejour_condition:
+    name: Condition du dernier automatisme
+    max: 100
+    icon: mdi:information-outline
+
+automation:
+- id: 2d39f587-0404-4bea-97fe-ef8e86531d96
+  description: VR Séjour - Position
+  alias: "VR Séjour - Position"
+  mode: restart
+  trigger:
+    - platform: time_pattern
+      minutes: "/10" # Durée entre chaque calcul de positionnement
+  condition:
+    - condition: state # Le volet ne doit pas être déjà en cours de suspension
+      entity_id: timer.vr_sejour
+      state: "idle"
+    - condition: template # La position réelle du volet doit avoir changé depuis plus de "vr_sejour_detection" secondes
+      value_template: "{{ (as_timestamp(now()) - as_timestamp(states.cover.vr_sejour.last_changed) | int(0)) > (states('input_number.vr_sejour_detection') | int) }}"
+  action:
+    - condition: template # Le volet ne doit pas être en mode "Manuel"
+      value_template: "{{ not is_state('input_select.vr_sejour_immediate', 'Manuel') }}"
+    - choose: # On vérifie si une condition immédiate correspond
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.alarmo_armed_vacation
+              state: "on"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_sejour_planned_position
+              data:
+                value: 0
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_sejour_condition
+              data:
+                value: "Condition : Alarmo Vacation - 0 %"
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.alarmo_armed_away
+              state: "on"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_sejour_planned_position
+              data:
+                value: 0
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_sejour_condition
+              data:
+                value: "Condition : Alarmo Away - 0 %"
+
+        - conditions: 
+            - "{{ as_timestamp(states('input_button.lionel_down'))|timestamp_custom('%H:%M', true) == states('sensor.time')  }}"       
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_sejour_planned_position
+              data:
+                value: "0"
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_sejour_condition
+              data:
+                value: "Condition : Bonne Nuit (coucher) - 0 %"
+
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.vr_sun_hot
+              state: "on"
+            - condition: state
+              entity_id: binary_sensor.soleil_est
+              state: "on"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_sejour_planned_position
+              data:
+                value: "{{ states('input_number.vr_global_position_sun_alert') }}"
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_sejour_condition
+              data:
+                value: "Condition : Ensoleillement excessif - {{ states('input_number.vr_global_position_sun_alert') }}%"
+
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.vr_sun_hot
+              state: "on"
+            - condition: state
+              entity_id: binary_sensor.soleil_sud
+              state: "on"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_sejour_planned_position
+              data:
+                value: "{{ states('input_number.vr_global_position_sun') }}"
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_sejour_condition
+              data:
+                value: "Condition : Ensoleillement fort - {{ states('input_number.vr_global_position_sun') }}%"
+
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.vr_evening
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.vr_evening
+              state: "on"              
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_sejour_planned_position
+              data:
+                value: "{{ states('input_number.vr_global_position_soir') }}"
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_cuisine_condition
+              data:
+                value: "Condition : Soirée - {{ states('input_number.vr_global_position_soir') }} %"
+
+
+        - conditions:
+            - condition: state
+              entity_id: input_select.period_of_day
+              state: "Nuit"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_sejour_planned_position
+              data:
+                value: 0
+        - conditions:
+            - condition: state
+              entity_id: input_select.vr_sejour_immediate
+              state: "Entrouvert"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_sejour_planned_position
+              data:
+                value: "{{ states('input_number.vr_global_position_entrouvert') }}" # A faire
+      default:
+        - choose: # On vérifie si une routine correspond
+            - conditions:
+                - condition: numeric_state # On ferme le volet si le soleil est sous l'horizon
+                  entity_id: sun.sun
+                  attribute: elevation
+                  below: 0
+              sequence:
+                - service: input_number.set_value
+                  target:
+                    entity_id: input_number.vr_sejour_planned_position
+                  data:
+                    value: "0"
+                - service: input_text.set_value
+                  target:
+                    entity_id: input_text.vr_sejour_condition
+                  data:
+                    value: "Action par défaut : Le soleil est couché - 0 %"
+
+            - conditions:
+                - condition: numeric_state # On ouvre le volet si le soleil est au dessus de l'horizon
+                  entity_id: sun.sun
+                  attribute: elevation
+                  above: 0
+                - condition: time
+                  after: "09:00:00"                  
+              sequence:
+                - service: input_number.set_value
+                  target:
+                    entity_id: input_number.vr_sejour_planned_position
+                  data:
+                    value: 100
+                - service: input_text.set_value
+                  target:
+                    entity_id: input_text.vr_sejour_condition
+                  data:
+                    value: "Action par défaut : Il est plus de 09:00, le soleil est levé - 100 %"
+

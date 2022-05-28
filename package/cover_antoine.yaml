@@ -1,0 +1,189 @@
+binary_sensor:
+
+template:
+  - binary_sensor:
+      - name: VR - Antoine - Running
+        state: "{{ not is_state('input_select.vr_antoine_immediate', 'Manuel') }}"
+        device_class: running
+
+input_select:
+  vr_antoine_immediate:
+    name: Gestion de vr_antoine
+    icon: mdi:form-select
+    options:
+      - Automatique
+      - Manuel
+      - Entrouvert
+
+input_number:
+  vr_antoine_detection:
+    name: Délai (s) avant suspension
+    min: "5"
+    max: "600"
+    step: "5"
+    unit_of_measurement: "'"
+    icon: mdi:clock-edit-outline
+  # vr_antoine_duration:
+  #   name: Durée (min) de la suspension
+  #   min: "1"
+  #   max: "1440"
+  #   step: "1"
+  #   unit_of_measurement: "''"
+  #   icon: mdi:clock-edit-outline
+  vr_antoine_planned_position:
+    name: Position désirée
+    min: "-1"
+    max: "100"
+    step: "1"
+    unit_of_measurement: "%"
+        
+timer:
+  vr_antoine:
+    name: Durée de suspension restant
+input_text:
+  vr_antoine_suspend:
+    name: Fin de suspension du volet roulant
+    max: 255
+    icon: mdi:information-outline
+  vr_antoine_condition:
+    name: Condition du dernier automatisme
+    max: 100
+    icon: mdi:information-outline
+
+automation:
+- id: 2d79f587-0204-4bea-97fe-ef8e86531d96
+  description: VR Antoine - Position
+  alias: "VR Antoine - Position"
+  mode: restart
+  trigger:
+    - platform: time_pattern
+      minutes: "/10" # Durée entre chaque calcul de positionnement
+  condition:
+    - condition: state # Le volet ne doit pas être déjà en cours de suspension
+      entity_id: timer.vr_antoine
+      state: "idle"
+    - condition: template # La position réelle du volet doit avoir changé depuis plus de "vr_antoine_detection" secondes
+      value_template: "{{ (as_timestamp(now()) - as_timestamp(states.cover.vr_antoine.last_changed) | int(0)) > (states('input_number.vr_antoine_detection') | int) }}"
+  action:
+    - condition: template # Le volet ne doit pas être en mode "Manuel"
+      value_template: "{{ not is_state('input_select.vr_antoine_immediate', 'Manuel') }}"
+    - choose: # On vérifie si une condition immédiate correspond
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.alarmo_armed_vacation
+              state: "on"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_antoine_planned_position
+              data:
+                value: 0
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_antoine_condition
+              data:
+                value: "Condition : Alarmo Vacation - 0 %"
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.alarmo_armed_away
+              state: "on"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_antoine_planned_position
+              data:
+                value: 0
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_antoine_condition
+              data:
+                value: "Condition : Alarmo Away - 0 %"
+
+        - conditions:
+            - "{{ as_timestamp(states('input_button.lionel_down'))|timestamp_custom('%H:%M', true) == states('sensor.time')  }}"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_antoine_planned_position
+              data:
+                value: "0"
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_antoine_condition
+              data:
+                value: "Condition : Soleil couché - 0 %"
+
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.vr_sun_hot
+              state: "on"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_antoine_planned_position
+              data:
+                value: "{{ states('input_number.vr_global_position_sun_alert') }}"
+            - service: input_text.set_value
+              target:
+                entity_id: input_text.vr_antoine_condition
+              data:
+                value: "Condition : Ensoleillement excessif - {{ states('input_number.vr_global_position_sun_alert') }} %"
+
+        - conditions:
+            - condition: state
+              entity_id: input_select.period_of_day
+              state: "Nuit"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_antoine_planned_position
+              data:
+                value: 0
+        - conditions:
+            - condition: state
+              entity_id: input_select.vr_antoine_immediate
+              state: "Entrouvert"
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.vr_antoine_planned_position
+              data:
+                value: "{{ states('input_number.vr_global_position_entrouvert') }}" # A faire
+      default:
+        - choose: # On vérifie si une routine correspond
+            - conditions:
+                - condition: numeric_state # On ferme le volet si le soleil est sous l'horizon
+                  entity_id: sun.sun
+                  attribute: elevation
+                  below: 0
+              sequence:
+                - service: input_number.set_value
+                  target:
+                    entity_id: input_number.vr_antoine_planned_position
+                  data:
+                    value: 0
+                - service: input_text.set_value
+                  target:
+                    entity_id: input_text.vr_antoine_condition
+                  data:
+                    value: "Action par défaut : Le soleil est couché - 0 %"
+
+            - conditions:
+                - condition: numeric_state # On ouvre le volet si le soleil est au dessus de l'horizon
+                  entity_id: sun.sun
+                  attribute: elevation
+                  above: 0
+                - condition: time
+                  after: "12:00:00"
+              sequence:
+                - service: input_number.set_value
+                  target:
+                    entity_id: input_number.vr_antoine_planned_position
+                  data:
+                    value: 100
+                - service: input_text.set_value
+                  target:
+                    entity_id: input_text.vr_antoine_condition
+                  data:
+                    value: "Action par défaut : Il est plus de 12:00, le soleil est levé - 100 %"
+
