@@ -71,11 +71,11 @@ input_select:
 automation:
 - id: a800970c-9bf4-48ce-a26f-a67c29093eb3
   description: Change input_select.roller_shutter
-  alias: VR - Global - Mode Automatique - change_input_select_roller_shutter
+  alias: VR - Global - Mode Automatique
   mode: restart
   trigger:
-    - platform: state
-      entity_id: input_select.period_of_day
+    # - platform: state
+    #   entity_id: input_select.period_of_day
   action:
     - service: input_select.select_option
       target:
@@ -91,11 +91,11 @@ automation:
 
 - id: a800880c-9df4-4fce-as6f-a67c24593eb3
   description: Change input_select.roller_shutter
-  alias: VR - Global - Mode Manuel - change_input_select_roller_shutter
+  alias: VR - Global - Mode Manuel
   mode: restart
   trigger:
-    - platform: state
-      entity_id: input_select.period_of_day
+    # - platform: state
+    #   entity_id: input_select.period_of_day
   action:
     - service: input_select.select_option
       target:
@@ -175,60 +175,3 @@ automation:
               data:
                 option: Automatique
 
-
-
-
-
-# - id: 5db664b4-6181-41ea-bf10-25c53cc43df1
-#   description: VR Global - Timers - Save
-#   alias: covers_timers_save
-#   mode: queued
-#   max: 20
-#   trigger:
-#     - platform: state
-#       entity_id:
-#         - timer.vr_cuisine # À modifier
-#   action:
-#     - service: input_text.set_value
-#       data:
-#         entity_id: "input_text.{{ trigger.entity_id.split('.')[1] }}_suspend"
-#         value: "{{ (as_timestamp(state_attr(trigger.entity_id, 'finishes_at')) | int) if states(trigger.entity_id) == 'active' else ''}}"
-#     - condition: template
-#       value_template: "{{ states(trigger.entity_id) == 'idle' }}"
-#     - service: automation.trigger
-#       data:
-#         skip_condition: false
-#       target:
-#         entity_id: "automation.{{ trigger.entity_id.split('.')[1] }}_position"        
-
-# - id: f625f2fd-7d10-438e-bac5-3222d10ff340
-#   description: VR Global - Timers - Restore
-#   alias: covers_timers_restore
-#   mode: single
-#   trigger:
-#     - platform: homeassistant
-#       event: start
-#   action:
-#     - variables:
-#         input_texts: "{{ states.input_text | map(attribute='entity_id') | list }}"
-#     - repeat:
-#         count: "{{ input_texts | count }}"
-#         sequence:
-#           - condition: template
-#             value_template: "{{ input_texts[repeat.index-1].endswith('_suspend') }}"
-#           - condition: template
-#             value_template: "{{ is_number(states(input_texts[repeat.index-1])) }}"
-#           - variables:
-#               duration: "{{ (states(input_texts[repeat.index-1]) | int) - (as_timestamp(now()) | int) }}"
-#           - choose:
-#               - conditions: "{{ duration > 0 }}"
-#                 sequence:
-#                   - service: timer.start
-#                     data:
-#                       entity_id: "timer.{{ input_texts[repeat.index-1].split('.')[1].replace('_suspend', '') }}"
-#                       duration: "{{ duration }}"
-#             default:
-#               - service: input_text.set_value
-#                 data:
-#                   entity_id: "{{ input_texts[repeat.index-1] }}"
-#                   value: ""        

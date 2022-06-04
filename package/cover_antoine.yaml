@@ -156,6 +156,9 @@ automation:
                   entity_id: sun.sun
                   attribute: elevation
                   below: 0
+                - condition: state
+                  entity_id: cover.vr_antoine
+                  state: "open"                  
               sequence:
                 - service: input_number.set_value
                   target:
@@ -175,6 +178,9 @@ automation:
                   above: 0
                 - condition: time
                   after: "12:00:00"
+                # - condition: state
+                #   entity_id: cover.vr_antoine
+                #   state: "closed"                  
               sequence:
                 - service: input_number.set_value
                   target:

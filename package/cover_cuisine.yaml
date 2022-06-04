@@ -173,10 +173,19 @@ automation:
               data:
                 value: "Condition : Ensoleillement fort - {{ states('input_number.vr_global_position_sun') }} %"
 
+
         - conditions:
-            - condition: state
-              entity_id: binary_sensor.vr_evening
-              state: "on"
+            - condition: numeric_state
+              entity_id: sun.sun
+              attribute: azimuth
+              above: 180
+            - condition: numeric_state
+              entity_id: sun.sun
+              attribute: elevation
+              below: 0
+            - condition: time
+              after: "18:00:00"            
+              # before: "23:59:59"
             - condition: state
               entity_id: input_boolean.vr_evening
               state: "on"
@@ -219,6 +228,9 @@ automation:
                   entity_id: sun.sun
                   attribute: elevation
                   below: 0
+                - condition: state
+                  entity_id: cover.vr_cuisine
+                  state: "open"                  
               sequence:
                 - service: input_number.set_value
                   target:
@@ -238,6 +250,9 @@ automation:
                   above: 0
                 - condition: time
                   after: "09:00:00"
+                # - condition: state
+                #   entity_id: cover.vr_cuisine
+                #   state: "closed"                  
               sequence:
                 - service: input_number.set_value
                   target:
@@ -249,113 +264,4 @@ automation:
                     entity_id: input_text.vr_cuisine_condition
                   data:
                     value: "Action par défaut : Il est plus de 09:00, le soleil est levé - 100 %"
-
-
-# - id: 0a9c9f48-fec6-40da-bb84-e5cbb0c4c27f
-#   description: VR Cuisine - Immediate
-#   alias: vr_cuisine_immediate
-#   mode: restart
-#   trigger:
-#     - platform: state
-#       entity_id: # Liste des conditions immédiates qui ont besoin d'être forcées
-#         - input_select.period_of_day
-#         - input_select.vr_cuisine_immediate
-#         - binary_sensor.vr_sun_hot
-#         - input_boolean.lionel_up_down
-#         - input_boolean.to_sleep
-#         - binary_sensor.soleil_sud
-#         - binary_sensor.soleil_est
-#     - platform: state
-#       entity_id: alarm_control_panel.alarmo
-#       to: "armed_away"
-#     - platform: state
-#       entity_id: alarm_control_panel.alarmo
-#       to: "disarmed"
-
-
-      
-#   action:
-#     - service: input_number.set_value # Mettre la position voulue à -1 (répétition des valeurs)
-#       target:
-#         entity_id: input_number.vr_cuisine_planned_position
-#       data:
-#         value: -1
-#     - service: timer.cancel # Annuler la suspension du volet
-#       target:
-#         entity_id: timer.vr_cuisine
-#     - service: automation.trigger # Lancer le positionnement automatique du volet
-#       data:
-#         skip_condition: true
-#       target:
-#         entity_id: "automation.vr_cuisine_position"
-
-# - id: 49cfc477-3254-4d8d-9dc8-9869e40a25fe
-#   description: VR Cuisine - Suspend
-#   alias: vr_cuisine_suspend
-#   mode: restart
-#   trigger:
-#     - platform: state # La position réelle du volet a changé depuis plus de "vr_cuisine_detection" secondes
-#       entity_id: cover.vr_cuisine
-#       attribute: current_position
-#       for:
-#         seconds: "{{ states('input_number.vr_cuisine_detection') | int }}"
-#     - platform: state # La position voulue du volet a changé depuis plus de "vr_cuisine_detection" secondes
-#       entity_id: input_number.vr_cuisine_planned_position
-#       for:
-#         seconds: "{{ states('input_number.vr_cuisine_detection') | int }}"
-#   condition:
-#     - condition: state # Le volet ne doit pas être déjà en cours de suspension
-#       entity_id: timer.vr_cuisine
-#       state: "idle"
-#     - condition: template # Le volet ne doit pas être en mode Manuel
-#       value_template: "{{ not is_state('input_select.vr_cuisine_immediate', 'Manuel') }}"
-#     - condition: template # La position réelle du volet doit être différente de la position voulue
-#       value_template: "{{ (state_attr('cover.vr_cuisine', 'current_position') | int(0)) != (states('input_number.vr_cuisine_planned_position') | int(0)) }}"
-#   action:
-#     - service: timer.start # Démarrer la suspension pour une durée de "vr_cuisine_duration" minutes
-#       data:
-#         duration: "{{ (states('input_number.vr_cuisine_duration') | int) * 60 }}"
-#       target:
-#         entity_id: timer.vr_cuisine
-#     - service: input_number.set_value # Mettre la position voulue à -1 (répétition des valeurs)
-#       target:
-#         entity_id: input_number.vr_cuisine_planned_position
-#       data:
-#         value: -1
-
-# - id: b2c57567-bfc2-4e40-8104-717db6b10e3a
-#   description: VR Cuisine - Move
-#   alias: vr_cuisine_move
-#   mode: restart
-#   trigger:
-#     - platform: state # La position voulue du volet a changé
-#       entity_id: input_number.vr_cuisine_planned_position
-#   condition:
-#     - condition: state # Le volet ne doit pas être déjà en cours de suspension
-#       entity_id: timer.vr_cuisine
-#       state: "idle"
-#     - condition: template # La position voulue du volet doit être supérieure ou égale à 0 (répétition des valeurs)
-#       value_template: "{{ (states('input_number.vr_cuisine_planned_position') | int(0)) >= 0 }}"
-#     - condition: template # La position réelle du volet doit être différente de la position voulue
-#       value_template: "{{ (states('input_number.vr_cuisine_planned_position') | int(0)) != (state_attr('cover.vr_cuisine', 'current_position') | int(0)) }}"
-#   action:
-#     - choose:
-#         - conditions:
-#             - condition: template # La position voulue du volet est égale à la position entrouverte
-#               value_template: "{{ (states('input_number.vr_cuisine_planned_position') | int(0)) == (states('input_number.vr_cuisine_position_entrouvert') | int(0)) }}"
-#             - condition: template # Le volet n'est pas déjà fermé
-#               value_template: "{{ (state_attr('cover.vr_cuisine', 'current_position') | int(0)) != 0 }}"
-#           sequence: # On ferme le volet et on attend que la position réelle soit confirmée
-#             - service: cover.close_cover
-#               target:
-#                 entity_id: cover.vr_cuisine
-#             - wait_template: "{{ (state_attr('cover.vr_cuisine', 'current_position') | int(0)) == 0 }}"
-#               timeout: "{{ states('input_number.vr_cuisine_detection') | int }}"
-#               continue_on_timeout: false
-#     - service: cover.set_cover_position # On déplace le volet à la position voulue
-#       target:
-#         entity_id: cover.vr_cuisine
-#       data:
-#         position: "{{ states('input_number.vr_cuisine_planned_position') }}"
-
 

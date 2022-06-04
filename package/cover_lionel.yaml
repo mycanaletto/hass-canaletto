@@ -188,6 +188,11 @@ automation:
                 entity_id: input_number.vr_lionel_planned_position
               data:
                 value: "{{ states('input_number.vr_global_position_entrouvert') }}" # A faire
+                
+# - j'ajoute un état dans l'input_select du volet ou le général type "Je me réveille" -> juste à tester la condition
+# - je fais un bouton avec un scénario -> j'active le bouton : passe le ou les volets en manuel, je le positionne à la bonne hauteur
+# - lorsque je me réveille je passe le nyctémère en mode "Jour", j'ajoute une simple condition si je suis ne mode jour depuis moins de xx minutes alors je mets le volet à xx %
+
       default:
         - choose: # On vérifie si une routine correspond
             - conditions:
@@ -195,6 +200,9 @@ automation:
                   entity_id: sun.sun
                   attribute: elevation
                   below: 0
+                - condition: state
+                  entity_id: cover.vr_lionel
+                  state: "open"
               sequence:
                 - service: input_number.set_value
                   target:
@@ -214,6 +222,9 @@ automation:
                   above: 0
                 - condition: time
                   after: "13:00:00"
+                - condition: state
+                  entity_id: cover.vr_baie
+                  state: "closed"
               sequence:
                 - service: input_number.set_value
                   target:

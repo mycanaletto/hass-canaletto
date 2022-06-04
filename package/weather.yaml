@@ -8,6 +8,14 @@ sensor:
         friendly_name: "Azimut du soleil"
         value_template: "{{ state_attr('sun.sun', 'azimuth') }}" # on indique que la valeur de cette entité sera égale à la valeur de l'attribut azimuth de l'entité sun.sun
 
+  - platform: statistics
+    name: "Garden - Illuminance (lux) - South - Stats"
+    entity_id: sensor.xiaomi_lumi_illuminance_1
+    state_characteristic: average_linear
+    max_age: "00:15"
+    sampling_size: 500
+    precision: 0
+
 binary_sensor:
   - platform: template
     sensors:
@@ -22,7 +30,7 @@ binary_sensor:
         friendly_name: "Alerte haute température"
 
       vr_evening:
-        value_template:  "{{ (state_attr('sun.sun', 'azimuth') | float(0.0)) > 180 and (state_attr('sun.sun', 'elevation') | float(0.0)) < 0 and '12:00:00' < states('sensor.time') < '23:59:59' }}"
+        value_template:  "{{ (state_attr('sun.sun', 'azimuth') | float(0.0)) > 180 and (state_attr('sun.sun', 'elevation') | float(0.0)) < 0 and ('12:00:00' < states('sensor.time')) }}"
         friendly_name: "Soirée"
 
 
@@ -57,3 +65,247 @@ input_number:
     step: "5"
     unit_of_measurement: "%"
     icon: mdi:cloud-lock-outline    
+
+  garden_heatwave:
+    name: Seuil - Forte chaleur
+    min: "0"
+    max: "50"
+    step: "1"
+    unit_of_measurement: "°C"    
+  sunny_south_low_threshold:
+    name: Ensoleillement - Sud - Seuil bas
+    min: "0"
+    max: "83000"
+    step: "1"
+    unit_of_measurement: "lux"
+  sunny_south_high_threshold:
+    name: Ensoleillement - Sud - Seuil haut
+    min: "0"
+    max: "83000"
+    step: "1"
+    unit_of_measurement: "lux"
+
+
+input_boolean:
+  sunny_south:
+    name: Ensoleillement - Sud
+
+
+
+
+template:
+  - binary_sensor:
+      name: "Is heatwave"
+      state: "{{ states('sensor.temperature_max_next_days') >= states('input_number.garden_heatwave') }}"
+      device_class: heat
+
+  - sensor:
+      # https://en.wikipedia.org/wiki/Dew_point#Calculating_the_dew_point
+      name: "Dew Point"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      state: >-
+        {% set h = states('sensor.lcz030_humidity') | float(0.0) %}
+        {% set t = states('sensor.lcz030_temperature') | float(0.0) %}
+
+        {% set b = 17.62 %}
+        {% set c = 243.12 %}
+        {% set l = ((h / 100) | log) + ((b * t) / (c + t)) %}
+
+        {{ ((c * l) / (b - l)) | round(2) }}
+
+
+        
+  - sensor:
+      # https://pon.fr/dzvents-alerte-givre-et-calcul-humidite-absolue/
+      name: "Absolute Humidity"
+      unit_of_measurement: "g/m³"
+      device_class: humidity
+      state_class: measurement 
+      state: >-
+        {% set h = states('sensor.lcz030_humidity') | float(0.0) %}
+        {% set t = states('sensor.lcz030_temperature') | float(0.0) %}
+
+        {{ ((6.112 * ((17.67 * t) / (243.5 + t) | log) * h * 2.1674) / (t + 273.15)) | round(2) }}
+  - sensor:
+      # https://pon.fr/dzvents-alerte-givre-et-calcul-humidite-absolue/
+      name: "Frost Point"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      state: >-
+        {% set t = (states('sensor.lcz030_temperature') | float(0.0)) + 273.15 %}
+        {% set r = (states('sensor.dew_point') | float(0.0)) + 273.15 %}
+
+        {{ ((r + (2671.02 / ((2954.61 / t) + (2.193665 * (t | log)) - 13.3448)) - t) - 273.15) | round(2) }}
+      attributes:
+        risk: >-
+          {% if is_number(states('sensor.lcz030_temperature')) and is_number(states('sensor.frost_point')) and is_number(states('sensor.absolute_humidity')) %}
+            {% set f = states('sensor.frost_point') | float %}
+            {% set a = states('sensor.absolute_humidity') | float %}
+            {% set t = states('sensor.lcz030_temperature') | float %}
+
+            {% if t <= 1 and f <= 0 %}
+              {% if a <= 2.8 %}
+                1
+              {% else %}
+                3
+              {% endif %}
+            {% elif t <= 4 and f <= 0.5 and a > 2.8 %}
+              2
+            {% endif %}
+          {% else %}
+            0
+          {% endif %}                
+  - sensor:
+      # https://en.wikipedia.org/wiki/Heat_index
+      name: "Heat Index"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      state: >-
+        {% set t = states('sensor.lcz030_temperature') | float(0.0) %}
+        {% set r = states('sensor.lcz030_humidity') | float(0.0) %}
+
+        {% set p1 = -8.78469475556 %}
+        {% set p2 = 1.61139411 * t %}
+        {% set p3 = 2.33854883889 * r %}
+        {% set p4 = -0.14611605 * t * r %}
+        {% set p5 = -0.012308094 * t * t %}
+        {% set p6 = -0.0164248277778 * r * r %}
+        {% set p7 = (2.211732e-3) * t * t * r %}
+        {% set p8 = (7.2546e-4) * t * r * r %}
+        {% set p9 = (3.582e-6) * t * t * r * r %}
+
+        {{ (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) | round(0) }}
+      attributes:
+        risk: >-
+          {% if (states('sensor.lcz030_temperature') | float(0.0)) >= 27 and (states('sensor.lcz030_humidity') | float(0.0)) >= 40 and (states('sensor.dew_point') | float(0.0)) >= 12 %} {## ⚠️ À modifier ##}
+            {% set i = states('sensor.heat_index') | float(0.0) %}
+
+            {% if i >= 54 %}
+              4
+            {% elif i >= 41 %}
+              3
+            {% elif i >= 32 %}
+              2
+            {% elif i >= 27 %}
+              1
+            {% else %}
+              0
+            {% endif %}
+          {% else %}
+            0
+          {% endif %}
+      icon: >-
+        {% set r = state_attr('sensor.heat_index', 'risk') | int(0) %}
+
+        {% if r == 4 %}
+          mdi:wifi-strength-4-alert
+        {% elif r == 3 %}
+          mdi:wifi-strength-3
+        {% elif r == 2 %}
+          mdi:wifi-strength-2
+        {% elif r == 1 %}
+          mdi:wifi-strength-1
+        {% else %}
+          mdi:wifi-strength-off-outline
+        {% endif %}
+  - sensor:
+      # https://fr.wikipedia.org/wiki/Indice_humidex
+      name: "Humidex"
+      state: >-
+        {% set t = states('sensor.lcz030_temperature') | float(0.0) %}
+        {% set r = states('sensor.dew_point') | float(0.0) %}
+
+        {% set a = 5417.7530*((1 / 273.16) - (1 / (273.15 + r))) %}
+
+        {{ (t + 0.55555 * (6.11 * (e ** a) - 10)) | round(0) }}
+      attributes:
+        risk: >-
+          {% set h = states('sensor.humidex') | float(0.0) %}
+
+          {% if h >= 54 %}
+            4
+          {% elif h >= 45 %}
+            3
+          {% elif h >= 40 %}
+            2
+          {% elif h >= 30 %}
+            1
+          {% else %}
+            0
+          {% endif %}
+      icon: >-
+        {% set r = state_attr('sensor.humidex', 'risk') | int(0) %}
+
+        {% if r == 4 %}
+          mdi:wifi-strength-4-alert
+        {% elif r == 3 %}
+          mdi:wifi-strength-3
+        {% elif r == 2 %}
+          mdi:wifi-strength-2
+        {% elif r == 1 %}
+          mdi:wifi-strength-1
+        {% else %}
+          mdi:wifi-strength-off-outline
+        {% endif %}
+
+  - sensor:
+      name: "Temperature max - Next days"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      state: >-
+        {% set sensors = [
+          states('sensor.lcz030_temperature') | float(0.0),
+          state_attr('weather.saint_andiol', 'forecast')[0].temperature | float(0.0),
+          state_attr('weather.saint_andiol', 'forecast')[1].temperature | float(0.0),
+          state_attr('weather.saint_andiol', 'forecast')[2].temperature | float(0.0),
+          state_attr('weather.saint_andiol', 'forecast')[3].temperature | float(0.0),
+        ] %}
+
+        {{ sensors | max }}
+
+
+
+  - sensor:
+      - name: "Garden - Illuminance (lux) - South"
+        unit_of_measurement: "lx"
+        device_class: illuminance
+        state_class: measurement
+        state: "{{ states('sensor.xiaomi_lumi_illuminance_1') if is_state('sensor.garden_illuminance_lux_south_stats', 'unavailable') else states('sensor.garden_illuminance_lux_south_stats') }}"
+
+automation:
+  - description: Sunny - South - Threshold
+    alias: sunny_south_threshold
+    id: d5637a4f-08b6-4ff2-88ba-77b7626a0513
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.sunny_south
+      - platform: state
+        entity_id: sensor.xiaomi_lumi_illuminance_1
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ not is_state('input_boolean.sunny_south', 'on') }}"
+              - condition: numeric_state
+                entity_id: sensor.xiaomi_lumi_illuminance_1
+                above: input_number.sunny_south_high_threshold
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.sunny_south
+          - conditions:
+              - condition: template
+                value_template: "{{ not is_state('input_boolean.sunny_south', 'off') }}"
+              - condition: numeric_state
+                entity_id: sensor.xiaomi_lumi_illuminance_1
+                below: input_number.sunny_south_low_threshold
+            sequence:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.sunny_south        

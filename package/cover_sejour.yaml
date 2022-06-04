@@ -152,12 +152,20 @@ automation:
                 value: "Condition : Ensoleillement fort - {{ states('input_number.vr_global_position_sun') }}%"
 
         - conditions:
-            - condition: state
-              entity_id: binary_sensor.vr_evening
-              state: "on"
+            - condition: numeric_state
+              entity_id: sun.sun
+              attribute: azimuth
+              above: 180
+            - condition: numeric_state
+              entity_id: sun.sun
+              attribute: elevation
+              below: 0
+            - condition: time
+              after: "18:00:00"            
+              # before: "23:59:59"
             - condition: state
               entity_id: input_boolean.vr_evening
-              state: "on"              
+              state: "on"            
           sequence:
             - service: input_number.set_value
               target:
@@ -166,7 +174,7 @@ automation:
                 value: "{{ states('input_number.vr_global_position_soir') }}"
             - service: input_text.set_value
               target:
-                entity_id: input_text.vr_cuisine_condition
+                entity_id: input_text.vr_sejour_condition
               data:
                 value: "Condition : Soirée - {{ states('input_number.vr_global_position_soir') }} %"
 
@@ -198,6 +206,9 @@ automation:
                   entity_id: sun.sun
                   attribute: elevation
                   below: 0
+                - condition: state
+                  entity_id: cover.vr_sejour
+                  state: "open"                  
               sequence:
                 - service: input_number.set_value
                   target:
@@ -216,7 +227,10 @@ automation:
                   attribute: elevation
                   above: 0
                 - condition: time
-                  after: "09:00:00"                  
+                  after: "09:00:00"
+                # - condition: state
+                #   entity_id: cover.vr_sejour
+                #   state: "closed"
               sequence:
                 - service: input_number.set_value
                   target:
