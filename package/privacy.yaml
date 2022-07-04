@@ -1,0 +1,51 @@
+script:
+  privacy_on:
+    alias: Privacy On
+    icon: mdi:cctv-off
+    sequence:
+    - service: switch.turn_on
+      target: 
+        entity_id:
+          - switch.hall_privacy_mode
+          - switch.salon_privacy_mode
+          - switch.g3_instant_privacy_mode
+          # - switch.garage_privacy_mode
+
+    - service: select.select_option
+      target:
+        entity_id:
+          - select.salon_recording_mode
+          # - select.portail_recording_mode
+          # - select.garage_recording_mode
+          - select.hall_recording_mode
+          - select.g3_instant_recording_mode
+          # - select.doorbell_recording_mode
+          # - select.terrasse_recording_mode
+      data:
+        option: Never
+
+
+  privacy_off:
+    alias: Privacy Off
+    icon: mdi:cctv
+    sequence:
+    - service: switch.turn_off
+      target: 
+        entity_id:
+          - switch.hall_privacy_mode
+          - switch.salon_privacy_mode
+          - switch.g3_instant_privacy_mode
+          # - switch.garage_privacy_mode
+
+    - service: select.select_option
+      target:
+        entity_id:
+          - select.salon_recording_mode
+          # - select.portail_recording_mode
+          # - select.garage_recording_mode
+          - select.hall_recording_mode
+          - select.g3_instant_recording_mode
+          # - select.doorbell_recording_mode
+          # - select.terrasse_recording_mode
+      data:
+        option: Detections        

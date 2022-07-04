@@ -23,13 +23,13 @@ input_number:
     step: "5"
     unit_of_measurement: "'"
     icon: mdi:clock-edit-outline
-  # vr_lionel_duration:
-  #   name: Durée (min) de la suspension
-  #   min: "1"
-  #   max: "1440"
-  #   step: "1"
-  #   unit_of_measurement: "''"
-  #   icon: mdi:clock-edit-outline
+  vr_lionel_duration:
+    name: Durée (min) de la suspension
+    min: "1"
+    max: "1440"
+    step: "1"
+    unit_of_measurement: "''"
+    icon: mdi:clock-edit-outline
   vr_lionel_planned_position:
     name: Position désirée
     min: "-1"
@@ -127,7 +127,9 @@ automation:
               data:
                 value: "Condition : Bonjour (lever) - {{ states('input_number.vr_global_position_reveil') }} %"
 
-
+            - service: notify.slack_hass_canaletto
+              data:
+                message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > VR Lionel : Condition : Bonjour (input_button.lionel_up) - {{ states('input_number.vr_global_position_reveil') }} %" 
 
         # - conditions:
         #     - condition: state
@@ -222,9 +224,9 @@ automation:
                   above: 0
                 - condition: time
                   after: "13:00:00"
-                - condition: state
-                  entity_id: cover.vr_baie
-                  state: "closed"
+                # - condition: state
+                #   entity_id: cover.vr_lionel
+                #   state: "closed"
               sequence:
                 - service: input_number.set_value
                   target:
@@ -237,3 +239,6 @@ automation:
                   data:
                     value: "Action par défaut : Il est plus de 13:00, le soleil est levé - {{ states('input_number.vr_global_position_reveil') }} %"
 
+                # - service: notify.slack_hass_canaletto
+                #   data:
+                #     message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > VR Lionel : Action par défaut : Il est plus de 13:00, le soleil est levé - {{ states('input_number.vr_global_position_reveil') }} %" 

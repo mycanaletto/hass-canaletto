@@ -8,9 +8,27 @@ sensor:
         friendly_name: "Azimut du soleil"
         value_template: "{{ state_attr('sun.sun', 'azimuth') }}" # on indique que la valeur de cette entité sera égale à la valeur de l'attribut azimuth de l'entité sun.sun
 
+  # - platform: statistics
+  #   name: "Garden - Illuminance (lux) - South - Stats"
+  #   entity_id: sensor.xiaomi_lumi_illuminance_1
+  #   state_characteristic: average_linear
+  #   max_age: "00:15"
+  #   sampling_size: 500
+  #   precision: 0
+
   - platform: statistics
-    name: "Garden - Illuminance (lux) - South - Stats"
+    name: "Outside - Illuminance (lux) - South - Stats"
     entity_id: sensor.xiaomi_lumi_illuminance_1
+    state_characteristic: average_linear
+    max_age: "00:15"
+    sampling_size: 500
+    precision: 0
+
+
+
+  - platform: statistics
+    name: "Garden - Température - South - Stats"
+    entity_id: sensor.rpi_mi_t_terrasse
     state_characteristic: average_linear
     max_age: "00:15"
     sampling_size: 500
@@ -19,55 +37,83 @@ sensor:
 binary_sensor:
   - platform: template
     sensors:
-      vr_sun_hot:
+      vr_garden_hot:
         device_class: heat
         delay_on: 
           seconds: 300
         delay_off:
           seconds: 300
-        value_template: "{{states('sensor.saint_andiol_temperature')|float(0) >= states('input_number.vr_sun_hot') |float(0)
-                        and states('sensor.saint_andiol_cloud_cover')|float(0) <= states('input_number.vr_cloud_cover')|float(0) }}" 
-        friendly_name: "Alerte haute température"
+        value_template: "{{states('sensor.garden_temperature_south_stats')|float(0) >= states('sensor.mi_cuisine_temp') |float(0) }}" 
+        friendly_name: "Alerte température in/out"
+
+      # vr_sun_hot:
+      #   device_class: heat
+      #   delay_on: 
+      #     seconds: 300
+      #   delay_off:
+      #     seconds: 300
+      #   value_template: "{{states('sensor.saint_andiol_temperature')|float(0) >= states('input_number.vr_sun_hot') |float(0)
+      #                   and states('sensor.saint_andiol_cloud_cover')|float(0) <= states('input_number.vr_cloud_cover')|float(0) }}" 
+      #   friendly_name: "Alerte haute température"
+
+      # vr_sun_hot_max:
+      #   device_class: heat
+      #   delay_on: 
+      #     seconds: 300
+      #   delay_off:
+      #     seconds: 300
+      #   value_template: "{{is_state('binary_sensor.vr_sun_hot', 'on') and is_state('input_boolean.sunny_south', 'on') }}" 
+      #   friendly_name: "Alerte haute température et fort ensoleillement"
+
+      vr_sun_hot:
+        device_class: occupancy
+        value_template: "{{states('sensor.garden_temperature_south_stats')|float(0) >= states('input_number.vr_sun_hot') |float(0) and is_state('input_boolean.sunny_south', 'on') }}" 
+        friendly_name: "Haute température et fort ensoleillement"
 
       vr_evening:
+        device_class: heat
         value_template:  "{{ (state_attr('sun.sun', 'azimuth') | float(0.0)) > 180 and (state_attr('sun.sun', 'elevation') | float(0.0)) < 0 and ('12:00:00' < states('sensor.time')) }}"
         friendly_name: "Soirée"
 
 
   - platform: threshold
     name: "Soleil : Ouest"
+    device_class: occupancy
     upper: 170
     lower: 80
     entity_id: sensor.sunazimuth
+    
   - platform: threshold
     name: "Soleil : Sud"
+    device_class: occupancy
     upper: 270
     lower: 100
     entity_id: sensor.sunazimuth
   - platform: threshold
     name: "Soleil : Est"
+    device_class: occupancy
     upper: 299
     lower: 260
     entity_id: sensor.sunazimuth
 
 input_number:
   vr_sun_hot:
-    name: Seuil haute température
+    name: Seuil - Haute température
     min: "10"
     max: "40"
     step: "1"
-    unit_of_measurement: "°"
+    unit_of_measurement: "°C"
     icon: mdi:sun-thermometer-outline
-  vr_cloud_cover:
-    name: Seuil couverture nuageuse
-    min: "0"
-    max: "100"
-    step: "5"
-    unit_of_measurement: "%"
-    icon: mdi:cloud-lock-outline    
+  # vr_cloud_cover:
+  #   name: Seuil couverture nuageuse
+  #   min: "0"
+  #   max: "100"
+  #   step: "5"
+  #   unit_of_measurement: "%"
+  #   icon: mdi:cloud-lock-outline    
 
   garden_heatwave:
-    name: Seuil - Forte chaleur
+    name: "Seuil - Forte chaleur (sur 5 jours)"
     min: "0"
     max: "50"
     step: "1"
@@ -76,13 +122,13 @@ input_number:
     name: Ensoleillement - Sud - Seuil bas
     min: "0"
     max: "83000"
-    step: "1"
+    step: "100"
     unit_of_measurement: "lux"
   sunny_south_high_threshold:
     name: Ensoleillement - Sud - Seuil haut
     min: "0"
     max: "83000"
-    step: "1"
+    step: "100"
     unit_of_measurement: "lux"
 
 
@@ -106,8 +152,8 @@ template:
       device_class: temperature
       state_class: measurement
       state: >-
-        {% set h = states('sensor.lcz030_humidity') | float(0.0) %}
-        {% set t = states('sensor.lcz030_temperature') | float(0.0) %}
+        {% set h = states('sensor.rpi_mi_h_terrasse') | float(0.0) %}
+        {% set t = states('sensor.rpi_mi_t_terrasse') | float(0.0) %}
 
         {% set b = 17.62 %}
         {% set c = 243.12 %}
@@ -124,8 +170,8 @@ template:
       device_class: humidity
       state_class: measurement 
       state: >-
-        {% set h = states('sensor.lcz030_humidity') | float(0.0) %}
-        {% set t = states('sensor.lcz030_temperature') | float(0.0) %}
+        {% set h = states('sensor.rpi_mi_h_terrasse') | float(0.0) %}
+        {% set t = states('sensor.rpi_mi_t_terrasse') | float(0.0) %}
 
         {{ ((6.112 * ((17.67 * t) / (243.5 + t) | log) * h * 2.1674) / (t + 273.15)) | round(2) }}
   - sensor:
@@ -135,16 +181,16 @@ template:
       device_class: temperature
       state_class: measurement
       state: >-
-        {% set t = (states('sensor.lcz030_temperature') | float(0.0)) + 273.15 %}
+        {% set t = (states('sensor.rpi_mi_t_terrasse') | float(0.0)) + 273.15 %}
         {% set r = (states('sensor.dew_point') | float(0.0)) + 273.15 %}
 
         {{ ((r + (2671.02 / ((2954.61 / t) + (2.193665 * (t | log)) - 13.3448)) - t) - 273.15) | round(2) }}
       attributes:
         risk: >-
-          {% if is_number(states('sensor.lcz030_temperature')) and is_number(states('sensor.frost_point')) and is_number(states('sensor.absolute_humidity')) %}
+          {% if is_number(states('sensor.rpi_mi_t_terrasse')) and is_number(states('sensor.frost_point')) and is_number(states('sensor.absolute_humidity')) %}
             {% set f = states('sensor.frost_point') | float %}
             {% set a = states('sensor.absolute_humidity') | float %}
-            {% set t = states('sensor.lcz030_temperature') | float %}
+            {% set t = states('sensor.rpi_mi_t_terrasse') | float %}
 
             {% if t <= 1 and f <= 0 %}
               {% if a <= 2.8 %}
@@ -165,8 +211,8 @@ template:
       device_class: temperature
       state_class: measurement
       state: >-
-        {% set t = states('sensor.lcz030_temperature') | float(0.0) %}
-        {% set r = states('sensor.lcz030_humidity') | float(0.0) %}
+        {% set t = states('sensor.rpi_mi_t_terrasse') | float(0.0) %}
+        {% set r = states('sensor.rpi_mi_h_terrasse') | float(0.0) %}
 
         {% set p1 = -8.78469475556 %}
         {% set p2 = 1.61139411 * t %}
@@ -181,7 +227,7 @@ template:
         {{ (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9) | round(0) }}
       attributes:
         risk: >-
-          {% if (states('sensor.lcz030_temperature') | float(0.0)) >= 27 and (states('sensor.lcz030_humidity') | float(0.0)) >= 40 and (states('sensor.dew_point') | float(0.0)) >= 12 %} {## ⚠️ À modifier ##}
+          {% if (states('sensor.rpi_mi_t_terrasse') | float(0.0)) >= 27 and (states('sensor.rpi_mi_h_terrasse') | float(0.0)) >= 40 and (states('sensor.dew_point') | float(0.0)) >= 12 %}
             {% set i = states('sensor.heat_index') | float(0.0) %}
 
             {% if i >= 54 %}
@@ -216,7 +262,7 @@ template:
       # https://fr.wikipedia.org/wiki/Indice_humidex
       name: "Humidex"
       state: >-
-        {% set t = states('sensor.lcz030_temperature') | float(0.0) %}
+        {% set t = states('sensor.rpi_mi_t_terrasse') | float(0.0) %}
         {% set r = states('sensor.dew_point') | float(0.0) %}
 
         {% set a = 5417.7530*((1 / 273.16) - (1 / (273.15 + r))) %}
@@ -259,7 +305,7 @@ template:
       state_class: measurement
       state: >-
         {% set sensors = [
-          states('sensor.lcz030_temperature') | float(0.0),
+          states('sensor.rpi_mi_t_terrasse') | float(0.0),
           state_attr('weather.saint_andiol', 'forecast')[0].temperature | float(0.0),
           state_attr('weather.saint_andiol', 'forecast')[1].temperature | float(0.0),
           state_attr('weather.saint_andiol', 'forecast')[2].temperature | float(0.0),
@@ -269,31 +315,45 @@ template:
         {{ sensors | max }}
 
 
+  # - sensor:
+  #     - name: "Garden - Illuminance (lux) - South"
+  #       unit_of_measurement: "lx"
+  #       device_class: illuminance
+  #       state_class: measurement
+  #       # state: "{{ states('sensor.xiaomi_lumi_illuminance_1') if is_state('sensor.garden_illuminance_lux_south_stats', 'unavailable') else states('sensor.garden_illuminance_lux_south_stats') }}"
+  #       state: "{{ states('sensor.xiaomi_lumi_illuminance_1') if is_number(states('sensor.garden_illuminance_lux_south_stats')) else states('sensor.garden_illuminance_lux_south_stats') }}"
 
   - sensor:
-      - name: "Garden - Illuminance (lux) - South"
+      - name: "Outside - Illuminance (lux) - South"
         unit_of_measurement: "lx"
         device_class: illuminance
         state_class: measurement
-        state: "{{ states('sensor.xiaomi_lumi_illuminance_1') if is_state('sensor.garden_illuminance_lux_south_stats', 'unavailable') else states('sensor.garden_illuminance_lux_south_stats') }}"
+        # state: "{{ states('sensor.xiaomi_lumi_illuminance_1') if is_number(states('sensor.outside_illuminance_lux_south_stats')) else states('sensor.outside_illuminance_lux_south_stats') }}"
+        # state: "{{ states('sensor.xiaomi_lumi_illuminance_1') if is_state('sensor.outside_illuminance_lux_south_stats', 'unavailable') else states('sensor.outside_illuminance_lux_south_stats') }}"
+
+        state: "{{ states('sensor.outside_illuminance_lux_south_stats') if is_number(states('sensor.outside_illuminance_lux_south_stats')) else states('sensor.xiaomi_lumi_illuminance_1') }}"
+
+
+
+
 
 automation:
-  - description: Sunny - South - Threshold
-    alias: sunny_south_threshold
-    id: d5637a4f-08b6-4ff2-88ba-77b7626a0513
+  - description: Weather - Sunny - South Threshold
+    alias: "Weather - Sunny - South Threshold"
+    id: d5899a4f-09b6-4ff2-99ba-77b7626a0513
     mode: restart
     trigger:
       - platform: state
         entity_id: input_boolean.sunny_south
       - platform: state
-        entity_id: sensor.xiaomi_lumi_illuminance_1
+        entity_id: sensor.outside_illuminance_lux_south
     action:
       - choose:
           - conditions:
               - condition: template
                 value_template: "{{ not is_state('input_boolean.sunny_south', 'on') }}"
               - condition: numeric_state
-                entity_id: sensor.xiaomi_lumi_illuminance_1
+                entity_id: sensor.outside_illuminance_lux_south
                 above: input_number.sunny_south_high_threshold
             sequence:
               - service: input_boolean.turn_on
@@ -303,9 +363,63 @@ automation:
               - condition: template
                 value_template: "{{ not is_state('input_boolean.sunny_south', 'off') }}"
               - condition: numeric_state
-                entity_id: sensor.xiaomi_lumi_illuminance_1
+                entity_id: sensor.outside_illuminance_lux_south
                 below: input_number.sunny_south_low_threshold
             sequence:
               - service: input_boolean.turn_off
                 target:
-                  entity_id: input_boolean.sunny_south        
+                  entity_id: input_boolean.sunny_south
+
+
+  # - description: Weather - Sunny - South Threshold
+  #   alias: "Weather - Sunny - South Threshold"
+  #   id: d5899a4f-09b6-4ff2-99ba-77b7626a0513
+  #   mode: restart
+  #   trigger:
+  #     - platform: state
+  #       entity_id: input_boolean.sunny_south
+  #     - platform: state
+  #       entity_id: sensor.garden_illuminance_lux_south
+  #   action:
+  #     - choose:
+  #         - conditions:
+  #             - condition: template
+  #               value_template: "{{ not is_state('input_boolean.sunny_south', 'on') }}"
+  #             - condition: numeric_state
+  #               entity_id: sensor.garden_illuminance_lux_south # le sensor plus haut
+  #               above: input_number.sunny_south_high_threshold
+  #           sequence:
+  #             - service: input_boolean.turn_on
+  #               target:
+  #                 entity_id: input_boolean.sunny_south
+  #         - conditions:
+  #             - condition: template
+  #               value_template: "{{ not is_state('input_boolean.sunny_south', 'off') }}"
+  #             - condition: numeric_state
+  #               entity_id: sensor.garden_illuminance_lux_south
+  #               below: input_number.sunny_south_low_threshold
+  #           sequence:
+  #             - service: input_boolean.turn_off
+  #               target:
+  #                 entity_id: input_boolean.sunny_south        
+
+  - description: Weather - In / Out
+    alias: "Weather - In / Out"
+    id: d587894f-0123-4745-956a-7856626a0513
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.vr_garden_hot
+    action:
+      - choose:
+          - conditions: "{{ is_state('binary_sensor.vr_garden_hot', 'on') }}"
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.plug_bw_03_off
+
+          - conditions: "{{ is_state('binary_sensor.vr_garden_hot', 'off') }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.plug_bw_03_off

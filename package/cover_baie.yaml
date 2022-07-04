@@ -23,20 +23,20 @@ input_number:
     step: "5"
     unit_of_measurement: "'"
     icon: mdi:clock-edit-outline
-  # vr_baie_duration:
-  #   name: Durée (min) de la suspension
-  #   min: "1"
-  #   max: "1440"
-  #   step: "1"
-  #   unit_of_measurement: "''"
-  #   icon: mdi:clock-edit-outline
+  vr_baie_duration:
+    name: Durée (min) de la suspension
+    min: "1"
+    max: "1440"
+    step: "1"
+    unit_of_measurement: "''"
+    icon: mdi:clock-edit-outline
   vr_baie_planned_position:
     name: Position désirée
     min: "-1"
     max: "100"
     step: "1"
     unit_of_measurement: "%"
-        
+
 timer:
   vr_baie:
     name: Durée de suspension restant

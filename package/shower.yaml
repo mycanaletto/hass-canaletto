@@ -1,0 +1,239 @@
+
+timer:
+  shower:
+    name: Boost SdB
+    # duration: '00:30:00'
+
+input_number:
+  sdb_boost_good:
+    name: Boost Good
+    # initial: 23
+    min: 20
+    max: 25
+    step: 0.5
+    unit_of_measurement: °C
+
+  sdb_boost_max:
+    name: Boost Max
+#    initial: 18
+    min: 23
+    max: 30
+    step: 0.5
+    unit_of_measurement: °C
+
+  sdb_boost_time:
+    name: Boost Time
+#    initial: 18
+    min: 15
+    max: 90
+    step: 5
+    # unit_of_measurement: "
+
+
+automation:
+- id : '90cfc099-c63f-42df-ae14-f7e14d83f817'
+  alias: "RC : Boost SdB - ON" # >>> Douche ponctuelle
+  description: '2 clics, scèche servietets + radiateur souffant'
+  trigger:
+  # - device_id: d800f7295af147dcad3a5f6ca4970f4a  # >>> Télécommande gérée par un BP...
+  #   domain: deconz
+  #   platform: device
+  #   type: remote_button_double_press
+  #   subtype: left
+  condition: []
+  action:
+  # - service: climate.set_temperature
+  #   entity_id: climate.thermostat_salle_de_bain
+  #   data_template:
+  #     temperature: '{{ states.input_number.consigne_boost.state }}'
+  # - data_template:
+  #     duration: '{{states.input_number.sdb_boost_time | int }}'
+  #   entity_id: timer.shower
+  #   service: timer.start
+
+
+  # - service: timer.start
+  #   data: {}
+  #   target:
+  #     entity_id: timer.shower
+
+  # - service: climate.set_preset_mode # Nouveau thermostat avec preset
+  #   data:
+  #     preset_mode: boost
+  #   target:
+  #     entity_id: climate.thermostat_salle_de_bain
+  # - service: switch.turn_on
+  #   entity_id: switch.plug_bw_01
+  # - service: notify.slack_hass_canaletto
+  #   data:
+  #     message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > BOOST | START | Salle de bain | Température : {{ states('sensor.rpi_mi_t_sdb') }}°"
+  # - service: tts.cloud_say
+  #   entity_id: media_player.sonos_cloud_hall
+  #   data_template:
+  #     message: "Préparation de la salle de bain. Je vous dirait quand vous pourrez vous doucher !"
+  #     cache: 'false'
+  # - delay: '00:15:00'
+
+- id : 'c88f056d-8bbc-40ff-a044-a3b1b733e3c8'
+  alias: "RC : Boost SdB"
+  description: "Boost SdB by chooser"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.rpi_mi_t_sdb
+      above: input_number.sdb_boost_good
+      id: "t_good"
+    - platform: numeric_state
+      entity_id: sensor.rpi_mi_t_sdb
+      above: input_number.sdb_boost_max
+      id: "tmax"
+    - platform: event
+      event_type: timer.finished
+      event_data:
+        entity_id: timer.shower
+      id: "timer.finished"
+    - platform: event
+      event_type: timer.started
+      event_data:
+        entity_id: timer.shower
+      id: "timer.started"
+  condition:
+    - condition: state
+      entity_id: input_boolean.thermostats_on_off
+      state: "on"
+  action:
+    - choose:
+
+        - conditions:
+            - condition: trigger
+              id: "timer.started" # Mode ON sur la base su timer qui est lancé depuis une télécommande ou une autre automation
+          sequence:
+            - service: climate.set_preset_mode
+              data:
+                preset_mode: boost
+              target:
+                entity_id: climate.thermostat_salle_de_bain
+            - service: switch.turn_on
+              entity_id: switch.plug_bw_01
+            - service: notify.slack_hass_canaletto
+              data:
+                message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > BOOST | START | Salle de bain | Température : {{ states('sensor.rpi_mi_t_sdb') }}°"
+            - service: tts.cloud_say
+              entity_id: media_player.sonos_cloud_hall
+              data_template:
+                message: "Préparation de la salle de bain. Je vous dirait quand vous pourrez vous doucher !"
+                cache: 'false'
+        - conditions:
+            - condition: and
+              conditions:
+                - condition: trigger
+                  id: "timer.started"
+                - condition: trigger
+                  id: "t_good" # On annonce que la température de confort+ est atteinte
+          sequence:
+            - service: tts.cloud_say
+              entity_id: media_player.sonos_cloud_hall
+              data_template:
+                message: "La température de la salle de bain est de {{states('sensor.rpi_mi_t_sdb')}}°, vous pouvez vous doucher !"
+                cache: 'false'
+            - service: notify.slack_hass_canaletto
+              data:
+                message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > BOOST | READY | Salle de bain | Température : {{ states('sensor.rpi_mi_t_sdb') }}°"
+
+        - conditions:
+            - condition: or
+              conditions:
+                - condition: trigger
+                  id: "timer.finished" # On arrete de chauffage à la fin du timer
+                - condition: trigger
+                  id: "t_max"          # On arrete le chauffage si la température max est atteinte.
+          sequence:
+            - service: switch.turn_off
+              entity_id: switch.plug_bw_01
+            - service: climate.set_preset_mode
+              data:
+                preset_mode: eco
+              target:
+                entity_id: climate.thermostat_salle_de_bain
+            - service: notify.slack_hass_canaletto    
+              data:
+                message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > BOOST | END | Salle de bain | Température : {{ states('sensor.rpi_mi_t_sdb') }}°"
+            - service: tts.cloud_say
+              entity_id: media_player.sonos_cloud_hall
+              data_template:
+                message: "Fin du chauffage de la salle de bain. A bientôt !"
+                cache: 'false'
+      default:
+        # - service: timer.start
+        #   data: {}
+        #   target:
+        #     entity_id: timer.shower
+        - service: climate.set_preset_mode
+          data:
+            preset_mode: boost
+          target:
+            entity_id: climate.thermostat_salle_de_bain
+        - service: switch.turn_on
+          entity_id: switch.plug_bw_01
+        - service: notify.slack_hass_canaletto
+          data:
+            message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > BOOST | START | Salle de bain | Température : {{ states('sensor.rpi_mi_t_sdb') }}°"
+        - service: tts.cloud_say
+          entity_id: media_player.sonos_cloud_hall
+          data_template:
+            message: "Préparation de la salle de bain. Je vous dirait quand vous pourrez vous doucher !"
+            cache: 'false'
+
+- id : '5dfef7cb-bf0e-49ab-880a-b416889b9a2c'
+  alias: "RC : Boost SdB - OFF After timer"
+  description: 'Off after timer'
+  trigger:
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.shower
+
+  action:
+  - service: switch.turn_off
+    entity_id: switch.plug_bw_01
+  - service: climate.set_preset_mode
+    data:
+      preset_mode: eco
+    target:
+      entity_id: climate.thermostat_salle_de_bain
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > BOOST | END | Salle de bain | Température : {{ states('sensor.rpi_mi_t_sdb') }}°"
+
+- id : '9d2021a6-4ea9-4a48-b305-f44f0fed500a'
+  alias: "RC : Boost SdB - OFF" # >> Cas d'une douche rapide, fin du chauffage avec un simlple clic
+  description: '1 click, douche OFF'
+  trigger:
+  # - device_id: d800f7295af147dcad3a5f6ca4970f4a  # >>> Télécommande gérée par un BP...
+  #   domain: deconz
+  #   platform: device
+  #   type: remote_button_short_press
+  #   subtype: left
+  condition: []
+  action:
+  - service: switch.turn_off
+    entity_id: switch.plug_bw_01
+  - service: climate.set_preset_mode
+    data:
+      preset_mode: eco
+    target:
+      entity_id: climate.thermostat_salle_de_bain
+  - service: climate.set_temperature
+    entity_id: climate.thermostat_salle_de_bain
+    data_template:
+      temperature: '{{ states.input_number.consigne_eco.state }}'
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > BOOST | CANCEL | Salle de bain | Température : {{ states('sensor.rpi_mi_t_sdb') }}°"
+
+  - service: tts.cloud_say
+    entity_id: media_player.sonos_cloud_hall
+    data_template:
+      message: "Fin manuelle du chauffage de la salle de bain"
+      cache: 'false'
+
+

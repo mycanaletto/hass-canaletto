@@ -23,13 +23,13 @@ input_number:
     step: "5"
     unit_of_measurement: "'"
     icon: mdi:clock-edit-outline
-  # vr_sejour_duration:
-  #   name: Durée (min) de la suspension
-  #   min: "1"
-  #   max: "1440"
-  #   step: "1"
-  #   unit_of_measurement: "''"
-  #   icon: mdi:clock-edit-outline
+  vr_sejour_duration:
+    name: Durée (min) de la suspension
+    min: "1"
+    max: "1440"
+    step: "1"
+    unit_of_measurement: "''"
+    icon: mdi:clock-edit-outline
   vr_sejour_planned_position:
     name: Position désirée
     min: "-1"

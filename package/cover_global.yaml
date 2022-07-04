@@ -38,7 +38,7 @@ input_number:
     unit_of_measurement: "%"
     icon: mdi:swap-vertical
   vr_global_position_alarm:
-    name: Position - Alarme
+    name: Position - Simmulation de présence
     min: "0"
     max: "100"
     step: "1"
@@ -58,6 +58,18 @@ input_number:
     step: "1"
     unit_of_measurement: "%"
     icon: mdi:swap-vertical
+
+
+  vr_duration_open_close:
+    name: Durée (s) pour effectuer un mouvement complet
+    min: "5"
+    max: "600"
+    unit_of_measurement: "s"
+  vr_baie_duration_open_close:
+    name: Durée (s) pour effectuer un mouvement complet (Baie)
+    min: "5"
+    max: "600"
+    unit_of_measurement: "s"        
 
 input_select:
   period_of_day:
