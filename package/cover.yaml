@@ -1,0 +1,94 @@
+
+cover:
+  - platform: group
+    name: Volets
+    entities:
+      - cover.vr_baie
+      - cover.vr_sejour
+      - cover.vr_cuisine
+      - cover.vr_antoine
+      - cover.vr_lionel
+      - cover.vr_marie
+
+
+input_select:
+  rc_ikea_vr:
+    name: Volet
+    icon: mdi:light-switch # Pour RC
+    options:
+      - vr_baie
+      - vr_sejour
+      - vr_cuisine
+      - vr_antoine
+      - vr_lionel
+      - vr_marie 
+
+# automation:
+# - id: "282e628f-8470-4366-88ea-c2e230e36617"
+#   alias: 'VR - Mode simulation de présence (Départ)'
+#   trigger: []
+#   condition: []
+#   action:
+#   # - service: cover.set_cover_position
+#   #   data:
+#   #     position: 60
+#   #   target:
+#   #     entity_id:
+#   #       - cover.vr_cuisine
+#   - service: cover.close_cover
+#     data: {}
+#     target:
+#       entity_id:
+#         - cover.vr_baie
+#         - cover.vr_sejour
+#         # - cover.vr_marie        
+#         - cover.vr_lionel
+#         - cover.vr_antoine
+
+#   - service: notify.slack_hass_canaletto
+#     data:
+#       message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > Volets en mode simulation de présence (au départ)"
+
+# - id: "099f47e8-0e4d-4f5b-b5e4-0eee4de2eb63"
+#   alias: 'VR - Mode simulation de présence (Retour)'
+#   trigger: []
+#   condition: []
+#   action:
+#   - service: cover.set_cover_position
+#     data:
+#       position: 20
+#     target:
+#       entity_id:
+#         # - cover.vr_cuisine
+#         # - cover.vr_marie
+#         - cover.vr_sejour
+#   # - service: cover.open_cover
+#   #   data: {}
+#   #   target:
+#   #     entity_id:
+#   #       - cover.vr_sejour
+#   - service: cover.set_cover_position
+#     data:
+#       position: 93
+#     target:
+#       entity_id:
+#         - cover.vr_baie
+#   - service: notify.slack_hass_canaletto
+#     data:
+#       message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > Volets en mode simulation de présence (au retour)"
+
+# - id: '3135458223-d617-4057-aac9-620ced3fd7fc'
+#   alias: 'VR : SUN : Coucher du Soleil'
+#   description: ''
+#   trigger:
+#     platform: sun
+#     event: sunset
+#     offset: "+00:30:00"
+#   action:
+#   - service: light.turn_on
+#     entity_id: light.shelly_25_terrasse_channel_1
+#   - service: switch.turn_on
+#     entity_id: switch.ikea_plug_02
+#   - service: notify.slack_hass_canaletto
+#     data:
+#       message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > DAILY | SUNSET | PRESENCE ON | Extérieur : {{ states.sensor.rpi_mi_t_terrasse.state }}°"       

@@ -22,6 +22,12 @@ input_select:
       - Manuel
       - Entrouvert
 
+input_datetime:
+  vr_marie_duration:
+    name: Délai avant suspension
+    has_date: false
+    has_time: true
+
 input_number:
   vr_marie_detection:
     name: Délai (s) avant suspension
@@ -30,13 +36,13 @@ input_number:
     step: "5"
     unit_of_measurement: "'"
     icon: mdi:clock-edit-outline
-  vr_marie_duration:
-    name: Durée (min) de la suspension
-    min: "1"
-    max: "1440"
-    step: "1"
-    unit_of_measurement: "''"
-    icon: mdi:clock-edit-outline
+  # vr_marie_duration:
+  #   name: Durée (min) de la suspension
+  #   min: "1"
+  #   max: "1440"
+  #   step: "1"
+  #   unit_of_measurement: "''"
+  #   icon: mdi:clock-edit-outline
   vr_marie_planned_position:
     name: Position désirée
     min: "-1"
@@ -47,11 +53,12 @@ input_number:
 timer:
   vr_marie:
     name: Durée de suspension restant
+    restore: true
 input_text:
-  vr_marie_suspend:
-    name: Fin de suspension du volet roulant
-    max: 255
-    icon: mdi:information-outline
+  # vr_marie_suspend:
+  #   name: Fin de suspension du volet roulant
+  #   max: 255
+  #   icon: mdi:information-outline
   vr_marie_condition:
     name: Condition du dernier automatisme
     max: 100
@@ -65,6 +72,12 @@ automation:
   trigger:
     - platform: time_pattern
       minutes: "/10" # Durée entre chaque calcul de positionnement
+    - platform: event
+      event_type:
+        - timer.cancelled
+        - timer.finished
+      event_data:
+        entity_id: timer.vr_marie      
   condition:
     - condition: state # Le volet ne doit pas être déjà en cours de suspension
       entity_id: timer.vr_marie
