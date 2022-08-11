@@ -1,0 +1,202 @@
+automation:
+- id: 0ff7454c-4592-4479-b2ae-bureau
+  description: Comfort - Bureau
+  alias: "Comfort - Bureau"
+  mode: restart
+  trigger:
+    - platform: time_pattern
+      minutes: "/10"
+  condition:
+  action:
+    - condition:
+        - "{{ is_state('climate.thermostat_bureau', 'heat') }}"
+        - "{{ is_state('automation.comfort_bureau_immediate', 'on') }}"
+        - "{{ is_state('binary_sensor.life_windows_and_doors_delayed', 'off') }}"
+        - "{{ is_state('binary_sensor.lionel_geo', 'on') }}"
+        - "{{ is_state('input_boolean.thermostats_away', 'off') }}"
+        - "{{ is_state('input_boolean.presence_bureau', 'on') }}"
+        - "{{ is_state('input_boolean.to_away', 'off') }}"
+        - "{{ is_state('input_boolean.to_sleep', 'off') }}"
+    - choose:
+        - conditions: "{{ is_state('binary_sensor.heating_bureau_1', 'on') }}" # 05
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_confort_1') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+        - conditions: "{{ is_state('binary_sensor.heating_bureau_2', 'on') }}" # 06
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_confort_2') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+        - conditions: "{{ is_state('binary_sensor.heating_bureau_3', 'on') }}" # 07
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_confort_3') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+        - conditions: "{{ is_state('binary_sensor.heating_bureau_4', 'on') }}" # 08
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_confort_4') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+
+        - conditions: "{{ is_state('binary_sensor.heating_bureau_1_d', 'on') }}" # 09
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_confort_1_d') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+        - conditions: "{{ is_state('binary_sensor.heating_bureau_2_d', 'on') }}" # 10
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_confort_2_d') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+        - conditions: "{{ is_state('binary_sensor.heating_bureau_3_d', 'on') }}" # 11
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_confort_3_d') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+        - conditions: "{{ is_state('binary_sensor.heating_bureau_4_d', 'on') }}" # 12
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_confort_4_d') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+
+      default:
+        - choose:
+            - conditions:
+                # - "{{ is_state('input_boolean.thermostats_on_off', 'on') }}" # chauffage on
+              sequence:
+                - service: climate.set_temperature
+                  data:
+                    temperature: "{{ states('input_number.heating_bureau_temperature_eco') }}"
+                  target:
+                    entity_id: climate.thermostat_bureau
+
+
+- id: 56dd275e-3f52-4d8ffa862-bureau
+  description: Comfort - Bureau - Mode Auto
+  alias: "Comfort - Bureau - Mode Auto"
+  trigger:
+    - platform: state
+      entity_id: automation.comfort_bureau_immediate
+      to: "on"
+  action:
+    - service: automation.trigger
+      target:
+        entity_id: "automation.comfort_bureau_immediate"
+
+
+- id: 56ee275e-3f52-4d88-a862-bureau
+  description: Comfort - Bureau - Immediate
+  alias: "Comfort - Bureau - Immediate"
+  mode: restart
+  trigger:
+    - platform: state
+      entity_id:
+        - input_number.heating_bureau_temperature_confort_1
+        - input_number.heating_bureau_temperature_confort_2
+        - input_number.heating_bureau_temperature_confort_3
+        - input_number.heating_bureau_temperature_confort_4
+        - input_number.heating_bureau_temperature_confort_1_d
+        - input_number.heating_bureau_temperature_confort_2_d
+        - input_number.heating_bureau_temperature_confort_3_d
+        - input_number.heating_bureau_temperature_confort_4_d
+        - input_number.heating_bureau_temperature_eco
+        - input_number.heating_bureau_temperature_away
+        - binary_sensor.heating_bureau_1
+        - binary_sensor.heating_bureau_2
+        - binary_sensor.heating_bureau_3
+        - binary_sensor.heating_bureau_4
+        - binary_sensor.heating_bureau_1_d
+        - binary_sensor.heating_bureau_2_d
+        - binary_sensor.heating_bureau_3_d
+        - binary_sensor.heating_bureau_4_d
+        - input_boolean.to_away
+        - binary_sensor.life_windows_and_doors_delayed
+        - input_boolean.presence_bureau
+        - input_boolean.to_sleep # eco heat off cool
+        - input_boolean.thermostats_on_off # Chauffage on/off
+        - binary_sensor.lionel_geo # eco heat off cool
+        - input_boolean.thermostats_away
+        - climate.thermostat_bureau
+
+  condition:
+    # - condition: state # periode chauffage ou clim
+    #   entity_id: input_boolean.thermostats_bureau_on_off
+    #   state: "on"
+  action:
+    - choose:
+        - conditions: # 00 - COOL or HEAT : OFF
+            - condition: or
+              conditions:
+                - "{{ is_state('binary_sensor.life_windows_and_doors_delayed', 'on') }}"
+                - "{{ is_state('input_boolean.presence_bureau', 'off') }}"
+                - "{{ is_state('input_boolean.thermostats_on_off', 'off') }}"
+          sequence:
+            - service: climate.set_hvac_mode
+              data:
+                hvac_mode: 'off'
+              target:
+                entity_id: climate.thermostat_bureau
+
+        - conditions:  # 03 - HEAT ECO
+            - condition: or
+              conditions:
+                - "{{ is_state('input_boolean.to_away', 'on') }}"
+                - "{{ is_state('input_boolean.to_sleep', 'on') }}"
+                - "{{ is_state('binary_sensor.lionel_geo', 'off') }}" # input_boolean.presence_lionel_geo
+            - condition: 
+                - "{{ is_state('climate.thermostat_bureau', 'heat') }}"
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_eco') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+
+        - conditions: # 04 - HEAT AWAY
+            - "{{ is_state('input_boolean.thermostats_away', 'on') }}"
+            - "{{ is_state('climate.thermostat_bureau', 'heat') }}"
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_bureau_temperature_away') }}"
+              target:
+                entity_id: climate.thermostat_bureau
+
+      default:
+        - choose:
+            - conditions: 
+                - "{{ is_state('input_boolean.thermostats_on_off', 'on') }}"
+                - "{{ is_state('binary_sensor.life_windows_and_doors_delayed', 'off') }}"
+                - "{{ is_state('input_boolean.presence_bureau', 'on') }}"
+                - "{{ is_state('input_boolean.thermostats_away', 'off') }}"
+                - "{{ is_state('input_boolean.to_away', 'off') }}"
+                - "{{ is_state('binary_sensor.lionel_geo', 'on') }}"
+              sequence:
+                - service: climate.set_hvac_mode
+                  data:
+                    hvac_mode: 'heat'
+                  target:
+                    entity_id: climate.thermostat_bureau
+                - service: automation.trigger
+                  target:
+                    entity_id: "automation.comfort_bureau"
+
+
+

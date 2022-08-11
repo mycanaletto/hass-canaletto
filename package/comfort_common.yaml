@@ -1,0 +1,224 @@
+
+
+
+binary_sensor:
+  - platform: template
+    sensors:
+      heating_enabled:
+        # device_class: motion
+        value_template: "{{ is_state('input_boolean.thermostats_on_off', 'on') }}"
+      # door:
+      #   device_class: opening
+      #   value_template: "{{ is_state('switch.door', 'on') }}"
+
+
+  - platform: template
+    sensors:
+      life_windows_and_doors_delayed:
+        friendly_name: "Ouvertures Vie (delayed)"
+        device_class: window
+        delay_on: 
+          seconds: 300
+        delay_off:
+          seconds: 300
+        value_template: >-
+          {{ is_state('binary_sensor.state_openings_life', 'on') }}
+        icon_template: >-
+          {% if is_state('binary_sensor.state_openings_life', 'on') %}
+            mdi:window-open
+          {% else %}
+            mdi:window-closed
+          {% endif %} 
+
+  - platform: template
+    sensors:
+      to_away_delayed:
+        friendly_name: "To Away (delayed)"
+        device_class: motion
+        #window_room: bedroom
+        delay_on: 
+          seconds: 300
+        delay_off:
+          seconds: 300
+        value_template: >-
+          {{ is_state('input_boolean.to_away', 'on') }}
+        icon_template: >-
+          {% if is_state('input_boolean.to_away', 'on') %}
+            mdi:lock-open
+          {% else %}
+            mdi:lock
+          {% endif %} 
+
+
+# input_boolean:
+#   alarm_clock:
+#     name: 'Réveil'
+#     icon: mdi:alarm-note
+
+input_datetime:
+  alarm_clock_date_time:
+    name: "Réveil"
+    has_date: true
+    has_time: true
+
+automation:
+- id: 'fab3sdfty-bgg6-4ddc-a23f-ee589300012c'
+  alias: "RC : Réveil + douche"
+  description: ''
+  trigger:
+    platform: time
+    at: input_datetime.alarm_clock_date_time
+  condition:
+  action:
+  - service: timer.start              # On lance le chauffage de la SdB
+    data:
+      duration: 00:25:30
+    target:
+      entity_id: timer.shower
+  - service: input_boolean.turn_off   # On passe en mode jour (utile pour le chauffage)
+    target:
+      entity_id: input_boolean.to_sleep 
+
+  - service: automation.turn_off      # AC en mode manuel
+    target:
+      entity_id: automation.comfort_ac_immediate
+
+  - service: climate.set_temperature  # AC Boost
+    data:
+      temperature: 23
+      hvac_mode: heat
+    target:
+      entity_id: climate.daikin
+
+  - delay: 00:10:00                   # On se prélasse encore un peu au lit...
+  - service: cover.set_cover_position # On entreouvre le volet de la chambre
+    data:
+      position: 22
+    target:
+      entity_id:
+        - cover.vr_lionel
+  - service: cover.set_cover_position # On ouvre le volet de la cuisine
+    data:
+      position: 60
+    target:
+      entity_id:
+        - cover.vr_cuisine      
+  - service: light.turn_on            # On allume quelques lampes
+    data:
+      color_name: yellowgreen
+    target:
+      entity_id: light.groupe_d_ampoules_led
+
+  - delay: 00:45:00                   # AC Auto
+  - service: automation.turn_on
+    target:
+      entity_id: automation.comfort_ac_immediate
+
+
+
+# script:
+#   heating_ac_boost:
+#     alias: Boost
+#     icon: mdi:timer-outline
+#     sequence:
+#     - event: schedy_set_value
+#       event_data:
+#         app_name: schedy_heating
+#         room: ac_heat
+#         v: '{{ states.input_number.heating_ac_temperature_boost.state }}'
+#         rescheduling_delay: '{{ states.input_number.heating_ac_time_boost.state }}'
+
+
+
+# Mathieu
+  # - platform: template
+  #   sensors:
+  #     samedi_non_ferie:
+  #       friendly_name: 'Samedi non Ferié'
+  #       value_template: >
+  #         {{{ (now().strftime('%w')|int == 6) and (states('binary_sensor.workday_sensor') == 'on') }}
+
+
+  # - platform: template
+  #   sensors:
+  #     sh_on:
+  #       friendly_name: 'plage'
+  #       # value_template: >-
+
+  #       value_template: >
+  #         {% set n = now() %}
+  #         {% set n = (n.hour*60+n.minute)*60+n.second %}
+  #         {% set ts_from = state_attr('input_datetime.hall_ac_heating_period_4_start', 'timestamp') %}
+  #         {% set ts_to = state_attr(input_datetime.hall_ac_heating_period_4_start', 'timestamp') %}
+  #         {{ n > ts_from or n < ts_to }}
+
+  # - platform: tod
+  #   name: Slot
+  #   after: 
+  #     value_template: >
+  #       {{ states('input_datetime.hall_ac_heating_period_4_start') }}
+  #   before:
+  #     value_template: >
+  #       {{ states('input_datetime.hall_ac_heating_period_4_start') }}
+
+
+
+# OK
+#   - platform: template
+#     sensors:
+#       slot_1:
+#         entity_id: sensor.time
+#         friendly_name: Slot 1
+#         value_template: >
+#           {% set t = states('sensor.time') %}
+#           {% set start = states('input_datetime.hall_ac_heating_period_4_start') [0:5] %}
+#           {% set stop = states('input_datetime.hall_ac_heating_period_4_end') [0:5] %}
+#           {{ start <= t < stop if start < stop else (start <= t or t < stop) }}
+
+#   - platform: template
+#     sensors:
+#       workday_saturday:
+#         friendly_name: "Samedi travaillé"
+#         value_template: >
+#           {% if now().isoweekday() in (5,) and states.binary_sensor.workday_sensor.state == 'on' %}
+#             true
+#           {%else%}
+#             false
+#           {% endif %}
+
+
+      # bs_pifi01_slot2:
+      #   entity_id: sensor.time
+      #   friendly_name: Pi-Fi-01 Slot 2
+      #   value_template: >
+      #     {% set t = states('sensor.time') %}
+      #     {% set enabled = is_state('input_boolean.ib_switch_pifi01_timeslot2_enable', 'on') %}
+      #     {% set start = states('input_datetime.id_switch_pifi01_tmeslt2_on') [0:5] %}
+      #     {% set stop = states('input_datetime.id_switch_pifi01_tmeslt2_off') [0:5] %}
+      #     {{ start <= t < stop if start < stop else (start <= t or t < stop) }}
+      # bs_pifi01_on:
+      #   friendly_name: Pi-Fi-01 Requested On
+      #   value_template: >
+      #     {% set timer = is_state('input_boolean.ib_switch_pifi01_on', 'on') and is_state('input_boolean.ib_switch_pifi01_timer_enable', 'on') %}
+      #     {% set occupied =  is_state('binary_sensor.bs_occupied', 'on') %}
+      #     {% set slot1 = states('binary_sensor.bs_pifi01_slot1') %}
+      #     {% set slot2 = states('binary_sensor.bs_pifi01_slot2') %}
+      #     {{ occupied and (timer or slot1 or slot2) }}
+
+
+
+      #     {{ (as_timestamp(states('sensor.date_time')) - as_timestamp(states('sensor.water_heater_alarm_last_boot_time'))) > 30 }}
+
+
+      #     {{ (state_attr('input_datetime.hall_ac_heating_period_4_start')) - (state_attr('input_datetime.hall_ac_heating_period_4_end'))) > 30 }}
+
+
+
+      # value_template: "{{ (state_attr('input_datetime.hall_ac_heating_period_4_start', 'timestamp') / 60)|int }}"
+
+      # value_template: "{{ (state_attr('input_datetime.hall_ac_heating_period_4_end', 'timestamp') / 60)|int }}"
+
+
+
+
+   

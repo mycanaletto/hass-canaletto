@@ -5,7 +5,6 @@ input_select:
     options:
       - Refroidissement
       - Chauffage
-      - Manuel
       - "Off"
 
 automation:
@@ -19,7 +18,8 @@ automation:
   condition:
   action:
     - condition:
-        - "{{ not states('input_select.comfort_ac') in ('Manuel', 'Off') }}"
+        - "{{ not states('climate.daikin') in ('fan_only', 'dry', 'heat_cool', 'off') }}"
+        - "{{ is_state('automation.comfort_ac_immediate', 'on') }}"
         - "{{ is_state('binary_sensor.life_windows_and_doors_delayed', 'off') }}"
         - "{{ is_state('binary_sensor.lionel_geo', 'on') }}"
         - "{{ is_state('input_boolean.thermostats_away', 'off') }}"
@@ -97,6 +97,17 @@ automation:
                     entity_id: climate.daikin
 
 
+- id: 56dd275e-3f52-4d8ffa862-5exxf5708a82
+  description: Comfort - AC - Mode Auto
+  alias: "Comfort - AC - Mode Auto"
+  trigger:
+    - platform: state
+      entity_id: automation.comfort_ac_immediate
+      to: "on"
+  action:
+    - service: automation.trigger
+      target:
+        entity_id: "automation.comfort_ac_immediate"
 
 
 - id: 56ee275e-3f52-4d88-a862-5e21f5708a82
@@ -128,13 +139,11 @@ automation:
         - binary_sensor.life_windows_and_doors_delayed
         - input_boolean.presence_ac
         - input_boolean.to_sleep # eco heat off cool
-        - input_boolean.to_away  # ???
-        # - input_boolean.heating_enabled
-        # - input_boolean.cooling_enabled
         - input_boolean.thermostats_ac_on_off
         - binary_sensor.lionel_geo # eco heat off cool
         - input_boolean.thermostats_away
         - input_select.comfort_ac
+        - climate.daikin
 
   condition:
     # - condition: state # periode chauffage ou clim
@@ -142,12 +151,12 @@ automation:
     #   state: "on"
   action:
     - choose:
-        - conditions:
+        - conditions: # 00 - COOL or HEAT : OFF
             - condition: or
               conditions:
                 - "{{ is_state('binary_sensor.life_windows_and_doors_delayed', 'on') }}"
-                - "{{ is_state('input_select.comfort_ac', 'Off') }}"
                 - "{{ is_state('input_boolean.presence_ac', 'off') }}"
+                - "{{ is_state('input_select.comfort_ac', 'Off') }}"
           sequence:
             - service: climate.set_hvac_mode
               data:
@@ -162,7 +171,7 @@ automation:
                 - "{{ is_state('input_boolean.to_away', 'on') }}"
                 - "{{ is_state('binary_sensor.lionel_geo', 'off') }}" # input_boolean.presence_lionel_geo        input_select.comfort_ac
             - condition: 
-                - "{{ is_state('input_select.comfort_ac', 'Refroidissement') }}"
+                - "{{ is_state('climate.daikin', 'cool') }}"
           sequence:
             - service: climate.set_hvac_mode
               data:
@@ -170,20 +179,17 @@ automation:
               target:
                 entity_id: climate.daikin
 
-        - conditions:  # 02 - COOL SLEEP
+        - conditions:  # 02 - COOL ECO
             - "{{ is_state('input_boolean.to_sleep', 'on') }}"
-            - "{{ is_state('input_select.comfort_ac', 'Refroidissement') }}"
+            - "{{ is_state('climate.daikin', 'cool') }}"
           sequence:
-            - service: climate.set_hvac_mode
-              data:
-                hvac_mode: 'cool'
-              target:
-                entity_id: climate.daikin
             - service: climate.set_temperature
               data:
                 temperature: "{{ states('input_number.heating_ac_temperature_eco') }}"
               target:
                 entity_id: climate.daikin                
+
+
 
         - conditions:  # 03 - HEAT ECO
             - condition: or
@@ -192,13 +198,8 @@ automation:
                 - "{{ is_state('input_boolean.to_sleep', 'on') }}"
                 - "{{ is_state('binary_sensor.lionel_geo', 'off') }}" # input_boolean.presence_lionel_geo
             - condition: 
-                - "{{ is_state('input_select.comfort_ac', 'Chauffage') }}"
+                - "{{ is_state('climate.daikin', 'heat') }}"
           sequence:
-            - service: climate.set_hvac_mode
-              data:
-                hvac_mode: 'heat'
-              target:
-                entity_id: climate.daikin
             - service: climate.set_temperature
               data:
                 temperature: "{{ states('input_number.heating_ac_temperature_eco') }}"
@@ -207,13 +208,8 @@ automation:
 
         - conditions: # 04 - HEAT AWAY
             - "{{ is_state('input_boolean.thermostats_away', 'on') }}"
-            - "{{ is_state('input_select.comfort_ac', 'Chauffage') }}"
+            - "{{ is_state('climate.daikin', 'heat') }}"
           sequence:
-            - service: climate.set_hvac_mode
-              data:
-                hvac_mode: 'heat'
-              target:
-                entity_id: climate.daikin
             - service: climate.set_temperature
               data:
                 temperature: "{{ states('input_number.heating_ac_temperature_away') }}"
@@ -222,7 +218,13 @@ automation:
 
       default:
         - choose:
-            - conditions: "{{ is_state('input_select.comfort_ac', 'Refroidissement') }}"
+            - conditions:
+                - "{{ is_state('input_select.comfort_ac', 'Refroidissement') }}"
+                - "{{ is_state('binary_sensor.life_windows_and_doors_delayed', 'off') }}"
+                - "{{ is_state('input_boolean.presence_ac', 'on') }}"
+                - "{{ is_state('input_boolean.thermostats_away', 'off') }}"
+                - "{{ is_state('input_boolean.to_away', 'off') }}"
+                - "{{ is_state('binary_sensor.lionel_geo', 'on') }}"
               sequence:
                 - service: climate.set_hvac_mode
                   data:
@@ -233,7 +235,13 @@ automation:
                   target:
                     entity_id: "automation.comfort_ac"
 
-            - conditions: "{{ is_state('input_select.comfort_ac', 'Chauffage') }}"
+            - conditions: 
+                - "{{ is_state('input_select.comfort_ac', 'Chauffage') }}"
+                - "{{ is_state('binary_sensor.life_windows_and_doors_delayed', 'off') }}"
+                - "{{ is_state('input_boolean.presence_ac', 'on') }}"
+                - "{{ is_state('input_boolean.thermostats_away', 'off') }}"
+                - "{{ is_state('input_boolean.to_away', 'off') }}"
+                - "{{ is_state('binary_sensor.lionel_geo', 'on') }}"
               sequence:
                 - service: climate.set_hvac_mode
                   data:

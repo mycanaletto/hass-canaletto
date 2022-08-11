@@ -1,0 +1,199 @@
+automation:
+- id: 0ff7454c-4592-4479-b2ae-antoine
+  description: Comfort - Antoine
+  alias: "Comfort - Antoine"
+  mode: restart
+  trigger:
+    - platform: time_pattern
+      minutes: "/10"
+  condition:
+  action:
+    - condition:
+        - "{{ is_state('climate.thermostat_antoine', 'heat') }}"
+        - "{{ is_state('automation.comfort_antoine_immediate', 'on') }}"
+        - "{{ is_state('binary_sensor.antoine_window_delayed', 'off') }}"
+        - "{{ is_state('binary_sensor.antoine_geo', 'on') }}"
+        - "{{ is_state('input_boolean.thermostats_away', 'off') }}"
+        - "{{ is_state('input_boolean.presence_antoine', 'on') }}"
+        - "{{ is_state('input_boolean.to_away', 'off') }}"
+    - choose:
+        - conditions: "{{ is_state('binary_sensor.heating_antoine_1', 'on') }}" # 05
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_confort_1') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+        - conditions: "{{ is_state('binary_sensor.heating_antoine_2', 'on') }}" # 06
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_confort_2') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+        - conditions: "{{ is_state('binary_sensor.heating_antoine_3', 'on') }}" # 07
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_confort_3') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+        - conditions: "{{ is_state('binary_sensor.heating_antoine_4', 'on') }}" # 08
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_confort_4') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+
+        - conditions: "{{ is_state('binary_sensor.heating_antoine_1_d', 'on') }}" # 09
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_confort_1_d') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+        - conditions: "{{ is_state('binary_sensor.heating_antoine_2_d', 'on') }}" # 10
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_confort_2_d') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+        - conditions: "{{ is_state('binary_sensor.heating_antoine_3_d', 'on') }}" # 11
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_confort_3_d') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+        - conditions: "{{ is_state('binary_sensor.heating_antoine_4_d', 'on') }}" # 12
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_confort_4_d') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+
+      default:
+        - choose:
+            - conditions:
+                # - "{{ is_state('input_boolean.thermostats_on_off', 'on') }}" # chauffage on
+              sequence:
+                - service: climate.set_temperature
+                  data:
+                    temperature: "{{ states('input_number.heating_antoine_temperature_eco') }}"
+                  target:
+                    entity_id: climate.thermostat_antoine
+
+
+- id: 56dd275e-3f52-4d8ffa862-antoine
+  description: Comfort - Antoine - Mode Auto
+  alias: "Comfort - Antoine - Mode Auto"
+  trigger:
+    - platform: state
+      entity_id: automation.comfort_antoine_immediate
+      to: "on"
+  action:
+    - service: automation.trigger
+      target:
+        entity_id: "automation.comfort_antoine_immediate"
+
+
+- id: 56ee275e-3f52-4d88-a862-antoine
+  description: Comfort - Antoine - Immediate
+  alias: "Comfort - Antoine - Immediate"
+  mode: restart
+  trigger:
+    - platform: state
+      entity_id:
+        - input_number.heating_antoine_temperature_confort_1
+        - input_number.heating_antoine_temperature_confort_2
+        - input_number.heating_antoine_temperature_confort_3
+        - input_number.heating_antoine_temperature_confort_4
+        - input_number.heating_antoine_temperature_confort_1_d
+        - input_number.heating_antoine_temperature_confort_2_d
+        - input_number.heating_antoine_temperature_confort_3_d
+        - input_number.heating_antoine_temperature_confort_4_d
+        - input_number.heating_antoine_temperature_eco
+        - input_number.heating_antoine_temperature_away
+        - binary_sensor.heating_antoine_1
+        - binary_sensor.heating_antoine_2
+        - binary_sensor.heating_antoine_3
+        - binary_sensor.heating_antoine_4
+        - binary_sensor.heating_antoine_1_d
+        - binary_sensor.heating_antoine_2_d
+        - binary_sensor.heating_antoine_3_d
+        - binary_sensor.heating_antoine_4_d
+        - input_boolean.to_away
+        - binary_sensor.antoine_window_delayed
+        - input_boolean.presence_antoine
+        - input_boolean.thermostats_on_off # Chauffage on/off
+        - binary_sensor.antoine_geo # eco heat off cool
+        - input_boolean.thermostats_away
+        - climate.thermostat_antoine
+
+  condition:
+    # - condition: state # periode chauffage ou clim
+    #   entity_id: input_boolean.thermostats_antoine_on_off
+    #   state: "on"
+  action:
+    - choose:
+        - conditions: # 00 - COOL or HEAT : OFF
+            - condition: or
+              conditions:
+                - "{{ is_state('binary_sensor.antoine_window_delayed', 'on') }}"
+                - "{{ is_state('input_boolean.thermostats_on_off', 'off') }}"
+          sequence:
+            - service: climate.set_hvac_mode
+              data:
+                hvac_mode: 'off'
+              target:
+                entity_id: climate.thermostat_antoine
+
+        - conditions:  # 03 - HEAT ECO
+            - condition: or
+              conditions:
+                - "{{ is_state('input_boolean.to_away', 'on') }}"
+                - "{{ is_state('input_boolean.presence_antoine', 'off') }}"                
+                - "{{ is_state('binary_sensor.antoine_geo', 'off') }}"
+            - condition: 
+                - "{{ is_state('climate.thermostat_antoine', 'heat') }}"
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_eco') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+
+        - conditions: # 04 - HEAT AWAY
+            - "{{ is_state('input_boolean.thermostats_away', 'on') }}"
+            - "{{ is_state('climate.thermostat_antoine', 'heat') }}"
+          sequence:
+            - service: climate.set_temperature
+              data:
+                temperature: "{{ states('input_number.heating_antoine_temperature_away') }}"
+              target:
+                entity_id: climate.thermostat_antoine
+
+      default:
+        - choose:
+            - conditions: 
+                - "{{ is_state('input_boolean.thermostats_on_off', 'on') }}"
+                - "{{ is_state('binary_sensor.antoine_window_delayed', 'off') }}"
+                # - "{{ is_state('input_boolean.presence_antoine', 'on') }}"
+                - "{{ is_state('input_boolean.thermostats_away', 'off') }}"
+                - "{{ is_state('input_boolean.to_away', 'off') }}"
+                # - "{{ is_state('binary_sensor.antoine_geo', 'on') }}"
+              sequence:
+                - service: climate.set_hvac_mode
+                  data:
+                    hvac_mode: 'heat'
+                  target:
+                    entity_id: climate.thermostat_antoine
+                - service: automation.trigger
+                  target:
+                    entity_id: "automation.comfort_antoine"
+
+
+
