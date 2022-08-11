@@ -18,7 +18,7 @@ input_select:
 
 input_datetime:
   vr_cuisine_duration:
-    name: Délai avant suspension - Cuisine
+    name: Délai avant suspension
     has_date: false
     has_time: true
 

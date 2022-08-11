@@ -5,6 +5,9 @@ input_boolean:
   vr_evening:
     name: Validation du mode soirée
     icon: mdi:toggle-switch
+  vr_night_black:
+    name: Mode porte chambre ouverte
+    icon: mdi:toggle-switch
 
 
 input_button:
