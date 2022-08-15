@@ -1,0 +1,95 @@
+
+sensor:
+  - platform: template
+    sensors:
+      # tuya-sw01_voltage:
+      #   value_template: >-
+      #     {{ states.switch.sw01.attributes.voltage }}
+      #   unit_of_measurement: 'V'
+      # tuya-sw01_current:
+      #   value_template: >-
+      #     {{ states.switch.sw01.attributes.current }}
+      #   unit_of_measurement: 'mA'
+      tuya_plug_1_current_consumption:
+        value_template: >-
+          {{ states.switch.tuya_plug_1.attributes.current_consumption }}
+        unit_of_measurement: 'W'
+      tuya_plug_2_current_consumption:
+        value_template: >-
+          {{ states.switch.tuya_plug_2.attributes.current_consumption }}
+        unit_of_measurement: 'W'
+      tuya_plug_3_current_consumption:
+        value_template: >-
+          {{ states.switch.tuya_plug_3.attributes.current_consumption }}
+        unit_of_measurement: 'W'
+      tuya_plug_4_current_consumption:
+        value_template: >-
+          {{ states.switch.tuya_plug_4.attributes.current_consumption }}
+        unit_of_measurement: 'W'
+      tuya_plug_5_current_consumption:
+        value_template: >-
+          {{ states.switch.tuya_plug_5.attributes.current_consumption }}
+        unit_of_measurement: 'W'
+      tuya_plug_6_current_consumption:
+        value_template: >-
+          {{ states.switch.tuya_plug_6.attributes.current_consumption }}
+        unit_of_measurement: 'W'
+
+
+
+  - platform: integration
+    source: sensor.tuya_plug_1_current_consumption
+    name: 'Tuya Plug 1 : Cumul'
+    unit_prefix: k
+    round: 2
+    method: left
+  - platform: integration
+    source: sensor.tuya_plug_2_current_consumption
+    name: 'Tuya Plug 2 : Cumul'
+    unit_prefix: k
+    round: 2
+    method: left
+  - platform: integration
+    source: sensor.tuya_plug_3_current_consumption
+    name: 'Tuya Plug 3 : Cumul'
+    unit_prefix: k
+    round: 2
+    method: left
+  - platform: integration
+    source: sensor.tuya_plug_4_current_consumption
+    name: 'Tuya Plug 4 : Cumul'
+    unit_prefix: k
+    round: 2
+    method: left
+  - platform: integration
+    source: sensor.tuya_plug_5_current_consumption
+    name: 'Tuya Plug 5 : Cumul'
+    unit_prefix: k
+    round: 2
+    method: left
+  - platform: integration
+    source: sensor.tuya_plug_6_current_consumption
+    name: 'Tuya Plug 6 : Cumul'
+    unit_prefix: k
+    round: 2
+    method: left
+
+utility_meter:
+  tuya_plug_1_energy_yearly:
+    source: sensor.tuya_plug_1_cumul
+    cycle: yearly
+  tuya_plug_2_energy_yearly:
+    source: sensor.tuya_plug_2_cumul
+    cycle: yearly
+  tuya_plug_3_energy_yearly:
+    source: sensor.tuya_plug_3_cumul
+    cycle: yearly
+  tuya_plug_4_energy_yearly:
+    source: sensor.tuya_plug_4_cumul
+    cycle: yearly
+  tuya_plug_5_energy_yearly:
+    source: sensor.tuya_plug_5_cumul
+    cycle: yearly
+  tuya_plug_6_energy_yearly:
+    source: sensor.tuya_plug_6_cumul
+    cycle: yearly
