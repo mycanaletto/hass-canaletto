@@ -1,0 +1,416 @@
+type: vertical-stack
+cards:
+  - type: custom:simple-thermostat
+    entity: climate.daikin
+    layout:
+      mode:
+        icons: true
+        headings: false
+        names: true
+      step: row
+    hide:
+      temperature: true
+      state: true
+    sensors:
+      - entity: sensor.rpi_mi_t_hall
+        icon: mdi:thermometer
+      - entity: binary_sensor.state_openings_life
+        icon: mdi:door
+      - entity: sensor.daikin_total_power_consumption
+        icon: mdi:lightning-bolt
+    header:
+      toggle:
+        entity: automation.comfort_ac_immediate
+        name: Manuel/Auto
+      name: Climatiseur Hall
+    control:
+      - hvac
+  - type: history-graph
+    entities:
+      - entity: sensor.temp_up_th_ac
+        name: ' '
+    hours_to_show: 24
+    refresh_interval: 0
+  - type: conditional
+    conditions:
+      - entity: automation.comfort_ac_immediate
+        state: 'on'
+    card:
+      type: entities
+      entities:
+        - entities:
+            - entity: input_boolean.heating_ac_enabled_1
+              name: NUIT
+              toggle: true
+            - entity: input_boolean.heating_ac_enabled_2
+              name: MATIN
+              toggle: true
+            - entity: input_boolean.heating_ac_enabled_3
+              name: MIDI
+              toggle: true
+            - entity: input_boolean.heating_ac_enabled_4
+              name: SOIR
+              toggle: true
+          entity: climate.daikin
+          name: Semaine
+          show_state: false
+          toggle: false
+          icon: mdi:calendar-range
+          type: custom:multiple-entity-row
+          state_color: true
+        - entities:
+            - entity: input_boolean.heating_ac_enabled_1_d
+              name: NUIT
+              toggle: true
+            - entity: input_boolean.heating_ac_enabled_2_d
+              name: MATIN
+              toggle: true
+            - entity: input_boolean.heating_ac_enabled_3_d
+              name: MIDI
+              toggle: true
+            - entity: input_boolean.heating_ac_enabled_4_d
+              name: SOIR
+              toggle: true
+          entity: climate.daikin
+          name: Week-end
+          show_state: false
+          toggle: false
+          icon: mdi:calendar-range
+          type: custom:multiple-entity-row
+          state_color: true
+        - entities:
+            - entity: input_select.comfort_ac
+              name: Mode (les autres modes se gèrent dans le thermostats)
+            - entity: input_number.heating_ac_temperature_eco
+              type: custom:numberbox-card
+              icon_plus: mdi:chevron-up
+              icon_minus: mdi:chevron-down
+            - entity: input_number.heating_ac_temperature_away
+              type: custom:numberbox-card
+              icon_plus: mdi:chevron-up
+              icon_minus: mdi:chevron-down
+              unit: °C
+            - label: Présence dans la pièce
+              type: section
+            - entity: input_boolean.presence_ac
+              name: Présence
+            - entity: input_datetime.next_ac_start
+              type: custom:multiple-entity-row
+              format: datetime
+              name: Arrivée
+            - entity: input_datetime.next_ac_stop
+              type: custom:multiple-entity-row
+              format: datetime
+              name: Départ
+            - type: section
+            - entity: binary_sensor.life_windows_and_doors_delayed
+            - entity: switch.daikin_ac
+              name: 'AC : Reset Wi-Fi'
+            - label: Daikin AC
+              type: section
+            - entity: sensor.daikin_compressor_frequency
+              name: Fréquence du compresseur
+            - entity: sensor.daikin_cool_energy_consumption
+              name: Consommation Froid
+            - entity: sensor.daikin_heat_energy_consumption
+              name: Consommation Chaud
+            - entity: sensor.daikin_total_power_consumption
+              name: Consommation Totale
+            - entity: switch.daikin_streamer
+              name: Streamer
+          head:
+            label: OPTIONS >
+            type: section
+          padding: 30
+          type: custom:fold-entity-row
+      title: PLANIFICATION
+      show_header_toggle: false
+      state_color: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_1
+        state: 'on'
+      - entity: automation.comfort_ac_immediate
+        state: 'on'
+    card:
+      type: custom:vertical-stack-in-card
+      title: AC / Semaine / Nuit
+      cards:
+        - entity: input_number.heating_ac_temperature_confort_1
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+          name: Température de confort
+          icon: false
+        - type: horizontal-stack
+          cards:
+            - entity: input_datetime.heating_ac_start_1
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+            - type: glance
+              show_state: false
+              entities:
+                - binary_sensor.heating_ac_1
+            - entity: input_datetime.heating_ac_end_1
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_2
+        state: 'on'
+      - entity: automation.comfort_ac_immediate
+        state: 'on'
+    card:
+      type: custom:vertical-stack-in-card
+      title: AC / Semaine / Matin
+      cards:
+        - entity: input_number.heating_ac_temperature_confort_2
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+          name: Température de confort
+          icon: false
+        - type: horizontal-stack
+          cards:
+            - entity: input_datetime.heating_ac_start_2
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+            - type: glance
+              show_state: false
+              entities:
+                - binary_sensor.heating_ac_2
+            - entity: input_datetime.heating_ac_end_2
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_3
+        state: 'on'
+      - entity: automation.comfort_ac_immediate
+        state: 'on'
+    card:
+      type: custom:vertical-stack-in-card
+      title: AC / Semaine / Midi
+      cards:
+        - entity: input_number.heating_ac_temperature_confort_3
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+          name: Température de confort
+          icon: false
+        - type: horizontal-stack
+          cards:
+            - entity: input_datetime.heating_ac_start_3
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+            - type: glance
+              show_state: false
+              entities:
+                - binary_sensor.heating_ac_3
+            - entity: input_datetime.heating_ac_end_3
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_4
+        state: 'on'
+      - entity: automation.comfort_ac_immediate
+        state: 'on'
+    card:
+      type: custom:vertical-stack-in-card
+      title: AC / Semaine / Soir
+      cards:
+        - entity: input_number.heating_ac_temperature_confort_4
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+          name: Température de confort
+          icon: false
+        - type: horizontal-stack
+          cards:
+            - entity: input_datetime.heating_ac_start_4
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+            - type: glance
+              show_state: false
+              entities:
+                - binary_sensor.heating_ac_4
+            - entity: input_datetime.heating_ac_end_4
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_1_d
+        state: 'on'
+      - entity: automation.comfort_ac_immediate
+        state: 'on'
+    card:
+      type: custom:vertical-stack-in-card
+      title: AC / Week-End / Nuit
+      cards:
+        - entity: input_number.heating_ac_temperature_confort_1_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+          name: Température de confort
+          icon: false
+        - type: horizontal-stack
+          cards:
+            - entity: input_datetime.heating_ac_start_1_d
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+            - type: glance
+              show_state: false
+              entities:
+                - binary_sensor.heating_ac_1_d
+            - entity: input_datetime.heating_ac_end_1_d
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_2_d
+        state: 'on'
+      - entity: automation.comfort_ac_immediate
+        state: 'on'
+    card:
+      type: custom:vertical-stack-in-card
+      title: AC / Week-End / Matin
+      cards:
+        - entity: input_number.heating_ac_temperature_confort_2_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+          name: Température de confort
+          icon: false
+        - type: horizontal-stack
+          cards:
+            - entity: input_datetime.heating_ac_start_2_d
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+            - type: glance
+              show_state: false
+              entities:
+                - binary_sensor.heating_ac_2_d
+            - entity: input_datetime.heating_ac_end_2_d
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_3_d
+        state: 'on'
+      - entity: automation.comfort_ac_immediate
+        state: 'on'
+    card:
+      type: custom:vertical-stack-in-card
+      title: AC / Week-End / Midi
+      cards:
+        - entity: input_number.heating_ac_temperature_confort_3_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+          name: Température de confort
+          icon: false
+        - type: horizontal-stack
+          cards:
+            - entity: input_datetime.heating_ac_start_3_d
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+            - type: glance
+              show_state: false
+              entities:
+                - binary_sensor.heating_ac_3_d
+            - entity: input_datetime.heating_ac_end_3_d
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+  - type: conditional
+    conditions:
+      - entity: input_boolean.heating_ac_enabled_4_d
+        state: 'on'
+      - entity: automation.comfort_ac_immediate
+        state: 'on'
+    card:
+      type: custom:vertical-stack-in-card
+      title: AC / Week-End / Soir
+      cards:
+        - entity: input_number.heating_ac_temperature_confort_4_d
+          type: custom:numberbox-card
+          icon_plus: mdi:chevron-up
+          icon_minus: mdi:chevron-down
+          name: Température de confort
+          icon: false
+        - type: horizontal-stack
+          cards:
+            - entity: input_datetime.heating_ac_start_4_d
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
+            - type: glance
+              show_state: false
+              entities:
+                - binary_sensor.heating_ac_4_d
+            - entity: input_datetime.heating_ac_end_4_d
+              type: custom:time-picker-card
+              layout:
+                align_controls: center
+                embedded: true
+              hide:
+                name: true
