@@ -76,24 +76,25 @@ binary_sensor:
         friendly_name: "Soirée"
 
 
-  - platform: threshold
+  - platform: threshold   # https://www.sunearthtools.com/dp/tools/pos_sun.php?lang=fr
     name: "Soleil : Ouest"
     device_class: occupancy
-    upper: 170
-    lower: 80
+    upper: 160
+    lower: 120
     entity_id: sensor.sunazimuth
     
   - platform: threshold
     name: "Soleil : Sud"
     device_class: occupancy
-    upper: 270
-    lower: 100
+    upper: 220
+    lower: 150
     entity_id: sensor.sunazimuth
+
   - platform: threshold
     name: "Soleil : Est"
     device_class: occupancy
-    upper: 299
-    lower: 260
+    upper: 240
+    lower: 220
     entity_id: sensor.sunazimuth
 
 input_number:

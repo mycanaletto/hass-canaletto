@@ -174,7 +174,7 @@ automation:
               attribute: elevation
               below: 0
             - condition: time
-              after: "18:00:00"            
+              after: "17:00:00"            
               # before: "23:59:59"
             - condition: state
               entity_id: input_boolean.vr_evening

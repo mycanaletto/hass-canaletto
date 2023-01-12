@@ -64,12 +64,12 @@ input_number:
 
 
   vr_duration_open_close:
-    name: Durée (s) pour effectuer un mouvement complet
+    name: Durée (s) Mouvement complet
     min: "5"
     max: "600"
     unit_of_measurement: "s"
   vr_baie_duration_open_close:
-    name: Durée (s) pour effectuer un mouvement complet (Baie)
+    name: Durée (s) Mouvement complet (Baie)
     min: "5"
     max: "600"
     unit_of_measurement: "s"        

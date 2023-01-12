@@ -95,11 +95,26 @@ automation:
     - platform: state
       entity_id: automation.comfort_cuisine_immediate
       to: "on"
+      id: "on"
+    - platform: state
+      entity_id: automation.comfort_cuisine_immediate
+      to: "off"
+      id: "off"
   action:
-    - service: automation.trigger
-      target:
-        entity_id: "automation.comfort_cuisine_immediate"
-
+    - choose:
+        - conditions: "{{ trigger.id in ['on', 'xx'] }}"
+          sequence:
+            - service: automation.trigger
+              target:
+                entity_id: "automation.comfort_cuisine_immediate"
+    - choose:
+        - conditions: "{{ trigger.id in ['off', 'xx'] }}"
+          sequence:
+            - service: climate.set_hvac_mode
+              data:
+                hvac_mode: "off"
+              target:
+                entity_id: climate.thermostat_cuisine
 
 - id: 56ee275e-3f52-4d88-a862-cuisine
   description: Comfort - Cuisine - Immediate

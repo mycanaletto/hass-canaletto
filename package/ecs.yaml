@@ -1,0 +1,159 @@
+binary_sensor:
+  - platform: template
+    sensors:
+      ecs_power_status:
+        friendly_name: "ECS Power"
+        delay_on:
+          minutes: 1
+        delay_off:
+          minutes: 1
+        value_template: >-
+          {{ states('sensor.legrand_contactor_power') > 5 }}
+
+
+template: # home-assistant.io/integrations/template/
+  - binary_sensor:
+      - name: "ECS Power On"
+        delay_on:
+          minutes: 1
+        delay_off:
+          minutes: 1
+        state: >
+          {{ states('sensor.legrand_contactor_power')|float > 0 }}
+
+input_boolean:
+  ecs_day_monday:
+    name: "ECS : Lundi"
+    icon: mdi:toggle-switch
+  ecs_day_tuesday:
+    name: "ECS : Mardi"
+    icon: mdi:toggle-switch
+  ecs_day_wednesday:
+    name: "ECS : Mercredi"
+    icon: mdi:toggle-switch
+  ecs_day_thursday:
+    name: "ECS : Jeudi"
+    icon: mdi:toggle-switch
+  ecs_day_friday:
+    name: "ECS : Vendredi"
+    icon: mdi:toggle-switch
+  ecs_day_saturday:
+    name: "ECS : Samedi"
+    icon: mdi:toggle-switch
+  ecs_day_sunday:
+    name: "ECS : Dimanche"
+    icon: mdi:toggle-switch
+
+automation:
+
+- id: '678d0e1-fcb6-4412-abvfr-99c4d37be5aa'
+  alias: 'ECS ON'
+  trigger:
+  # - platform: template
+  #   value_template: '{{ states(''sensor.time'') == (states.input_datetime.only_time.attributes.timestamp
+  #     | int | timestamp_custom(''%H:%M'', False)) }}'
+  - platform: template
+    value_template: '{{ states.sensor.time.state == states.input_datetime.ecs_start.state[0:5] }}'
+  condition:
+    condition: or
+    conditions:
+    # - condition: state
+    #   entity_id: input_boolean.thermostats_away
+    #   state: 'off'
+
+      - '{{ (now().strftime("%a") == "Mon") and is_state("input_boolean.ecs_day_monday", "on") }}'
+      - '{{ (now().strftime("%a") == "Tue") and is_state("input_boolean.ecs_day_tuesday", "on") }}'
+      - '{{ (now().strftime("%a") == "Wed") and is_state("input_boolean.ecs_day_wednesday", "on") }}'
+      - '{{ (now().strftime("%a") == "Thu") and is_state("input_boolean.ecs_day_thursday", "on") }}'
+      - '{{ (now().strftime("%a") == "Fri") and is_state("input_boolean.ecs_day_friday", "on") }}'
+      - '{{ (now().strftime("%a") == "Sat") and is_state("input_boolean.ecs_day_saturday", "on") }}'
+      - '{{ (now().strftime("%a") == "Sun") and is_state("input_boolean.ecs_day_sunday", "on")}}'
+  action:
+  - service: switch.turn_on
+    entity_id: switch.legrand_contactor
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > ECS | START | Température SW : {{ states.sensor.pm_ecs_device_temperature.state }}°" 
+
+
+- id: 'c69csdfsef-76dd-4fdd-9d20-40bfsdq158ae'
+  alias: 'ECS OFF'
+  trigger:
+  - platform: template
+    value_template: '{{ states.sensor.time.state == states.input_datetime.ecs_stop.state[0:5] }}'
+  action:
+  - service: switch.turn_off
+    entity_id: switch.legrand_contactor
+  - service: notify.slack_hass_canaletto
+    data:
+      message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > ECS | STOP | Température SW : {{ states.sensor.pm_ecs_device_temperature.state }}° | OP : {{ states.binary_sensor.pm_ecs_overpowering.state }} | OT : {{ states.binary_sensor.pm_ecs_overheating.state }}"   
+
+
+
+# - id: '6b1ed0e1-fcb6-4412-a520-66c4d37be5aa'
+#   alias: 'Q : ECS ON : Lancement Quotiden' # ECS au quotidien
+#   description: ''
+#   trigger:
+#   - platform: template
+#     value_template: '{{ states.sensor.time.state == states.input_datetime.ecs_start.state[0:5] }}'
+#   condition:
+#     condition: and
+#     conditions:
+#     - condition: state
+#       entity_id: input_boolean.thermostats_away
+#       state: 'off'
+#     - condition: time
+#       weekday:
+#         - mon
+#         - tue
+#         - wed
+#         - thu
+#         - fri
+#         - sat
+#         - sun
+#   action:
+#   - service: switch.turn_on
+#     entity_id: switch.pm_ecs
+#   - delay : '00:01:00'
+#   - service: switch.turn_on
+#     entity_id: switch.pm_ecs
+#   - delay : '00:05:00'
+#   - service: switch.turn_on
+#     entity_id: switch.pm_ecs
+#   - delay : '00:10:00'
+#   - service: switch.turn_on
+#     entity_id: switch.pm_ecs    
+#   - service: notify.slack_hass_canaletto
+#     data:
+#       message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > ECS | START | Température SW : {{ states.sensor.pm_ecs_device_temperature.state }}°" 
+
+# - id: 'c69c32ef-76fd-4f97-9b20-40b1ae0158ae'
+#   alias: 'Q : ECS OFF : Lancement Quotiden'
+#   trigger:
+#   - platform: template
+#     value_template: '{{ states.sensor.time.state == states.input_datetime.ecs_stop.state[0:5] }}'
+#   action:
+#   - service: notify.slack_hass_canaletto
+#     data:
+#       message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > ECS | STOP | Température SW : {{ states.sensor.pm_ecs_device_temperature.state }}° | OP : {{ states.binary_sensor.pm_ecs_overpowering.state }} | OT : {{ states.binary_sensor.pm_ecs_overheating.state }}"   
+#   - service: switch.turn_off
+#     entity_id: switch.pm_ecs
+#   - delay : '00:05:00'
+#   - service: switch.turn_off
+#     entity_id: switch.pm_ecs
+#   - delay : '00:15:00'
+#   - service: switch.turn_off
+#     entity_id: switch.pm_ecs
+
+# - id: 'c78c358f-76fd-4f97-9b20-40b1ae0158ae'
+#   alias: 'Q : ECS State : unavailable'
+#   trigger:
+#   - platform: state
+#     entity_id: switch.pm_ecs
+#     to: 'unavailable' 
+#   action:
+#   - service: notify.slack_hass_canaletto
+#     data:
+#       message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > ECS | unavailable | Température SW : {{ states.sensor.pm_ecs_device_temperature.state }}° | OP : {{ states.binary_sensor.pm_ecs_overpowering.state }} | OT : {{ states.binary_sensor.pm_ecs_overheating.state }}"   
+
+

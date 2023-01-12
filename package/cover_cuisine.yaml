@@ -1,11 +1,11 @@
 binary_sensor:
 
 template:
-  - binary_sensor:
-      - name: VR - Cuisine - Running
-        state: "{{ not is_state('input_select.vr_cuisine_immediate', 'Manuel') }}"
-        # state: "{{ not is_state('input_select.roller_shutter', 'Manuel') and not is_state('input_select.kitchen_cover_immediate', 'Manuel') }}"
-        device_class: running
+  # - binary_sensor:
+  #     - name: VR - Cuisine - Running
+  #       state: "{{ not is_state('input_select.vr_cuisine_immediate', 'Manuel') }}"
+  #       # state: "{{ not is_state('input_select.roller_shutter', 'Manuel') and not is_state('input_select.kitchen_cover_immediate', 'Manuel') }}"
+  #       device_class: running
 
 input_select:
   vr_cuisine_immediate:
@@ -22,7 +22,7 @@ input_datetime:
     has_date: false
     has_time: true
 
-input_number:
+input_number:                          # A suprimer
   vr_cuisine_detection:
     name: Délai (s) avant suspension
     min: "5"
@@ -30,6 +30,7 @@ input_number:
     step: "5"
     unit_of_measurement: "'"
     icon: mdi:clock-edit-outline
+
   # vr_cuisine_duration:
   #   name: Durée (min) de la suspension
   #   min: "1"
@@ -38,11 +39,18 @@ input_number:
   #   unit_of_measurement: "''"
   #   icon: mdi:clock-edit-outline
   vr_cuisine_planned_position:
-    name: Position désirée
+    name: VR Cuisine - Position désirée # (old)
     min: "-1"
     max: "100"
     step: "1"
     unit_of_measurement: "%"
+
+  # vr_cuisine_desired_position: # Old new suite à trad
+  #   name: VR Cuisine - Position désirée
+  #   min: "-1"
+  #   max: "100"
+  #   step: "1"
+  #   unit_of_measurement: "%"
 
 timer:
   vr_cuisine:
@@ -197,7 +205,7 @@ automation:
               attribute: elevation
               below: 0
             - condition: time
-              after: "18:00:00"            
+              after: "17:00:00"            
               # before: "23:59:59"
             - condition: state
               entity_id: input_boolean.vr_evening
