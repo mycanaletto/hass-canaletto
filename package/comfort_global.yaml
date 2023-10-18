@@ -69,37 +69,53 @@ binary_sensor:
           {% endif %}
 
 automation:
-  - alias: 'CLIMATE - On / Off des Thermostats'
+  - id: '30654cfd-f266-4125697ae-e807ea55vft794'
+    alias: 'CLIMATE - Lever du Soleil'
     description: ''
     trigger:
-    - platform: state
-      entity_id: input_boolean.thermostats_on_off
+      platform: sun
+      event: sunrise
+      offset: "-00:10:00"
     action:
-    - service: climate.set_hvac_mode
-      entity_id: climate.climate_all
-      data_template:
-        hvac_mode: >
-          {% if states.input_boolean.thermostats_on_off.state == "on" %}
-            heat
-          {% else %}
-            off
-          {% endif %}
+    - service: input_boolean.turn_off
+      target:
+        entity_id: 
+        - input_boolean.to_sleep # Contrainte Chauffage Schedy OFF, le ON se fait dans Bonne Nuit (remote.yaml) + certains VR
+    - service: notify.slack_hass_canaletto
+      data:
+        message: "{{now().strftime('%d/%m/%Y, %H:%M')}} > DAILY | SUNRISE | GLOBAL OFF | Extérieur : {{ states.sensor.rpi_mi_t_terrasse.state }}°" 
 
-  - alias: 'CLIMATE - Away / None des Thermostats'
-    description: ''
-    trigger:
-    - platform: state
-      entity_id: input_boolean.thermostats_away
-    action:
-    - service: climate.set_preset_mode
-      entity_id: climate.climate_all
-      data_template:
-        preset_mode: >
-          {% if states.input_boolean.thermostats_away.state == "on" %}
-            away
-          {% else %}
-            none
-          {% endif %}
+  # - alias: 'CLIMATE - On / Off des Thermostats'
+  #   description: ''
+  #   trigger:
+  #   - platform: state
+  #     entity_id: input_boolean.thermostats_on_off
+  #   action:
+  #   - service: climate.set_hvac_mode
+  #     entity_id: climate.climate_all
+  #     data_template:
+  #       hvac_mode: >
+  #         {% if states.input_boolean.thermostats_on_off.state == "on" %}
+  #           heat
+  #         {% else %}
+  #           off
+  #         {% endif %}
+
+  # - alias: 'CLIMATE - Away / None des Thermostats'
+  #   description: ''
+  #   trigger:
+  #   - platform: state
+  #     entity_id: input_boolean.thermostats_away
+  #   action:
+  #   - service: climate.set_preset_mode
+  #     entity_id: climate.climate_all
+  #     data_template:
+  #       preset_mode: >
+  #         {% if states.input_boolean.thermostats_away.state == "on" %}
+  #           away
+  #         {% else %}
+  #           none
+  #         {% endif %}
 
 # AC
   - id: 'd1bdf1ac-4d43-4f04-9b09-03e7a5e9ff59'
