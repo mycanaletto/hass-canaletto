@@ -1,0 +1,351 @@
+alias: GUI - Mi Boxer
+description: ""
+mode: parallel
+triggers:
+  - domain: mqtt
+    device_id: 86c1403c24491ce021ac3ee081a86308
+    type: action
+    subtype: brightness_move_to_level
+    discovery_id: 0x003c84fffec29c71 action_brightness_move_to_level
+    id: bright
+    trigger: device
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('on', 101)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 1on
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('off', 101)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 1off
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('on', 102)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 2on
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('off', 102)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 2off
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('on', 103)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 3on
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('off', 103)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 3off
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('on', 104)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 4on
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('off', 104)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 4off
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('on', 105)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 5on
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('off', 105)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 5off
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('on', 106)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 6on
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('off', 106)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 6off
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('on', 107)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 7on
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('off', 107)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 7off
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('on', 108)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 8on
+    trigger: mqtt
+  - topic: zigbee2mqtt/Mi Boxer
+    payload: ('off', 108)
+    value_template: "{{ value_json.action , value_json.action_group }}"
+    id: 8off
+    trigger: mqtt
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['1on'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.dimmer_spot_1
+            action: light.turn_on
+          - data:
+              option: "1"
+            target:
+              entity_id: input_select.mi_boxer_select
+            action: input_select.select_option
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['1off'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.dimmer_spot_1
+            action: light.turn_off
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['2on'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.shellydimmer_d3e57c
+            action: light.turn_on
+          - data:
+              option: "2"
+            target:
+              entity_id: input_select.mi_boxer_select
+            action: input_select.select_option
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['2off'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.shellydimmer_d3e57c
+            action: light.turn_off
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['3on'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.ikea_e27_tv
+            action: light.turn_on
+          - data:
+              option: "3"
+            target:
+              entity_id: input_select.mi_boxer_select
+            action: input_select.select_option
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['3off'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.ikea_e27_tv
+            action: light.turn_off
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['4on'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.lidl_led_stand
+            action: light.turn_on
+          - data:
+              option: "4"
+            target:
+              entity_id: input_select.mi_boxer_select
+            action: input_select.select_option
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['4off'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.lidl_led_stand
+            action: light.turn_off
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['5on'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.dimmable_sm309
+            action: light.turn_on
+          - data:
+              option: "5"
+            target:
+              entity_id: input_select.mi_boxer_select
+            action: input_select.select_option
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['5off'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.dimmable_sm309
+            action: light.turn_off
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['6on'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.shelly_bulb_1
+            action: light.turn_on
+          - data:
+              option: "6"
+            target:
+              entity_id: input_select.mi_boxer_select
+            action: input_select.select_option
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['6off'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.shelly_bulb_1
+            action: light.turn_off
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['7on'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.led_strip_1
+            action: light.turn_on
+          - data:
+              option: "7"
+            target:
+              entity_id: input_select.mi_boxer_select
+            action: input_select.select_option
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['7off'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id: light.led_strip_1
+            action: light.turn_off
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['8on'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id:
+                - light.dimmer_spot_1
+                - light.shellydimmer_d3e57c
+                - light.ikea_e27_tv
+                - light.dimmable_sm309
+                - light.shelly_bulb_1
+                - light.lidl_led_stand
+                - light.plug_tz_10_switch
+                - light.led_strip_1
+            action: light.turn_on
+          - data:
+              option: "8"
+            target:
+              entity_id: input_select.mi_boxer_select
+            action: input_select.select_option
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.id in ['8off'] }}"
+        sequence:
+          - data: {}
+            target:
+              entity_id:
+                - light.dimmer_spot_1
+                - light.shellydimmer_d3e57c
+                - light.ikea_e27_tv
+                - light.dimmable_sm309
+                - light.shelly_bulb_1
+                - light.lidl_led_stand
+                - light.plug_tz_10_switch
+                - light.led_strip_1
+            action: light.turn_off
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ is_state('sensor.mi_boxer_group', '101') and trigger.id in
+              ['bright'] and is_state('light.dimmer_spot_1', 'on') }}
+        sequence:
+          - data_template:
+              entity_id: light.dimmer_spot_1
+              brightness_pct: "{{ states('sensor.mi_boxer_bright') | int}}"
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ is_state('input_select.mi_boxer_select', '2') and trigger.id in
+              ['bright'] }}
+        sequence:
+          - data_template:
+              entity_id: light.shellydimmer_d3e57c
+              brightness_pct: "{{ states('sensor.mi_boxer_bright') | int}}"
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ is_state('input_select.mi_boxer_select', '3') and trigger.id in
+              ['bright'] }}
+        sequence:
+          - data_template:
+              entity_id: light.ikea_e27_tv
+              brightness_pct: "{{ states('sensor.mi_boxer_bright') | int}}"
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ is_state('input_select.mi_boxer_select', '4') and trigger.id in
+              ['bright'] }}
+        sequence:
+          - data_template:
+              entity_id: light.lidl_led_stand
+              brightness_pct: "{{ states('sensor.mi_boxer_bright') | int}}"
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ is_state('input_select.mi_boxer_select', '5') and trigger.id in
+              ['bright'] }}
+        sequence:
+          - data_template:
+              entity_id: light.dimmable_sm309
+              brightness_pct: "{{ states('sensor.mi_boxer_bright') | int}}"
+              transition: 0.2
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ is_state('input_select.mi_boxer_select', '6') and trigger.id in
+              ['bright'] }}
+        sequence:
+          - data_template:
+              entity_id: light.shelly_bulb_1
+              brightness_pct: "{{ states('sensor.mi_boxer_bright') | int}}"
+              transition: 0.2
+            action: light.turn_on
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ is_state('input_select.mi_boxer_select', '7') and trigger.id in
+              ['bright'] }}
+        sequence:
+          - data_template:
+              entity_id: light.led_strip_1
+              brightness_pct: "{{ states('sensor.mi_boxer_bright') | int}}"
+              transition: 0.2
+            action: light.turn_on
